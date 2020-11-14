@@ -1,27 +1,23 @@
 import asyncio
-import json
-import sys
-import websockets
 import argparse
+import threading
 
 from config.default import config
 import instance.config
 
-
-async def main():
-    while True:
-        async with websockets.connect(config.get('uri'.format(config.get('auth_token')))) as websocket:
-            await game_loop(websocket)
-
-
-async def game_loop(websocket):
-    pass
+from game import Game
+from ui import UI
 
 
 if __name__ == '__main__':
     # Parse command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('token', help='Override token in configuration', type=str)
+
+    cli = parser.add_mutually_exclusive_group()
+    cli.add_argument('-i', '--interface', action='store_true', help='Enable command line interface')
+    cli.add_argument('-n', '--no-interface', action='store_true', help='Disable command line interface')
+
     cmd_args = parser.parse_args()
 
     # Load and merge configuration files
@@ -31,6 +27,15 @@ if __name__ == '__main__':
     if cmd_args.token:
         print("Using token from command line")
         config['auth_token'] = cmd_args.token
+    if cmd_args.interface:
+        config['interface'] = True
+
+    # Start cli interface
+    if config.get('interface'):
+        ui = UI()
+        T = threading.Thread(target=ui.cli, daemon=True)
+        T.start()
 
     # Call event loop
-    asyncio.run(main())
+    game = Game(config)
+    asyncio.run(game.main())
