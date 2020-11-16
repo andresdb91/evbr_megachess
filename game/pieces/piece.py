@@ -10,8 +10,10 @@ class Piece:
         self.x = x
         self.y = y
         self.points = points
-        self.moves = []
-        self.update_moves()
+        if self.moves is None:
+            self.moves = self.update_moves()
+        else:
+            self.moves = self.moves.copy()
 
     def move(self, x: int, y: int):
         self.x = x
@@ -22,4 +24,8 @@ class Piece:
         return self.moves
 
     def update_moves(self):
+        pass
+
+    @classmethod
+    def update_default_moves(cls):
         pass

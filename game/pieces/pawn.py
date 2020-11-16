@@ -15,7 +15,12 @@ class Pawn(Piece):
             y0 = [12, 13]
             direction = -1
 
-        self.moves.append((self.x, self.y + direction))
-
+        moves = [(self.x, self.y + direction)]
         if self.y in y0:
-            self.moves.append((self.x, self.y + 2*direction))
+            moves.append((self.x, self.y + 2*direction))
+
+        return moves
+
+    @classmethod
+    def update_default_moves(cls):
+        cls.moves = None
