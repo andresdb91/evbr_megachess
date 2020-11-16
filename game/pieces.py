@@ -3,7 +3,7 @@ class Piece:
     x: int
     y: int
     points: int
-    moves: list[list[tuple[int, int]]]
+    moves: list[list[tuple[int, int]]] = None
 
     def __init__(self, color, x, y, points):
         self.color = color
@@ -11,24 +11,21 @@ class Piece:
         self.y = y
         self.points = points
         if self.moves is None:
-            self.moves = self.update_moves()
+            self.moves = self.update_moves(self.x, self.y, self.color)
         else:
             self.moves = self.moves.copy()
 
     def move(self, x: int, y: int):
         self.x = x
         self.y = y
-        self.moves = self.update_moves()
+        self.moves = self.update_moves(self.x, self.y, self.color)
 
     def get_moves(self) -> list[list[tuple[int, int]]]:
         return self.moves
 
-    def update_moves(self) -> list[list[tuple[int, int]]]:
-        pass
-
-    @classmethod
-    def update_default_moves(cls):
-        pass
+    @staticmethod
+    def update_moves(x, y, color) -> list[list[tuple[int, int]]]:
+        return [[]]
 
 
 class Pawn(Piece):
@@ -37,23 +34,32 @@ class Pawn(Piece):
     def __init__(self, color, x, y):
         super(Pawn, self).__init__(color, x, y, Pawn.POINTS)
 
-    def update_moves(self):
-        if self.color == 'white':
-            y0 = [2, 3]
+    @staticmethod
+    def update_moves(x, y, color):
+        if color == 'white':
+            y0 = [12, 13]
             direction = -1
         else:
-            y0 = [12, 13]
+            y0 = [2, 3]
             direction = 1
 
-        moves = [(self.x, self.y + direction)]
-        if self.y in y0:
-            moves.append((self.x, self.y + 2*direction))
+        move = [(x, y + direction)]
+        if y in y0:
+            move.append((x, y + 2 * direction))
 
-        return [moves]
+        eat_left = []
+        if x > 0:
+            eat_left = [(x - 1, y + direction)]
 
-    @classmethod
-    def update_default_moves(cls):
-        cls.moves = None
+        eat_right = []
+        if x < 15:
+            eat_right = [(x + 1, y + direction)]
+
+        return [
+            move,
+            eat_left,
+            eat_right,
+        ]
 
 
 class Rook(Piece):
