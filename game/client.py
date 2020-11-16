@@ -174,4 +174,6 @@ class GameClient:
             except Exception as e:
                 print(f'Error: {e}')
                 print('Attempting reconnection...')
-                return
+                # DEBUG
+                raise
+                # return

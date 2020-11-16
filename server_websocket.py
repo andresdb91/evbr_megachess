@@ -18,6 +18,7 @@ class ServerWebsocketAdap:
                     await callback()
             except Exception as e:
                 print(f'Error: {e}')
+                raise
 
     async def recv(self):
         response = await self.websocket.recv()
