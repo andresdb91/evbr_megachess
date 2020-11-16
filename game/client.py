@@ -7,6 +7,9 @@ from datetime import datetime, timedelta
 from game.instance import GameInstance
 from server_websocket import ServerWebsocketAdap
 
+OLD_GAMES_CHECK_TIME = 20
+GAME_TIMEOUT = 15
+
 
 class GameClient:
 
@@ -82,12 +85,12 @@ class GameClient:
             current = datetime.now()
             old_games = []
             for board_id, game in self.game_list.items():
-                if current - game.last_move > timedelta(seconds=20):
+                if current - game.last_move > timedelta(seconds=GAME_TIMEOUT):
                     old_games.append(board_id)
             if len(old_games) > 0:
                 [self.game_list.pop(bid) for bid in old_games]
                 print(f'Game instances removed: {old_games}')
-            await asyncio.sleep(30)
+            await asyncio.sleep(OLD_GAMES_CHECK_TIME)
 
     async def run(self):
         asyncio.create_task(self.cli_listener())
