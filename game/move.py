@@ -1,14 +1,10 @@
-from game.pieces import Piece
-from game.board import Board
-
-
 class Move:
     from_x: int
     from_y: int
     to_x: int
     to_y: int
-    piece: Piece
-    board: Board
+    # piece: Piece
+    # board: Board
     weight: float
 
     def __init__(
