@@ -151,6 +151,7 @@ class GameClient:
                             turn_token=response['data']['turn_token'],
                             server=self.server,
                             board=response['data']['board'],
+                            color=response['data']['actual_turn'],
                         )
                         game_instance.last_move = datetime.now()
                     else:
@@ -166,6 +167,7 @@ class GameClient:
                         await new_instance.play(
                             turn_token=response['data']['turn_token'],
                             server=self.server,
+                            color=response['data']['actual_turn'],
                         )
                         print(f'New game - id: {new_instance.board_id} - color: {new_instance.color}')
                         new_instance.last_move = datetime.now()
