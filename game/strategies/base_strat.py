@@ -1,4 +1,4 @@
 class BaseStrategy:
     @staticmethod
-    def play(instance, board):
+    def play(instance, board, color):
         pass
