@@ -3,7 +3,7 @@ class Piece:
     x: int
     y: int
     points: int
-    moves: [(int, int)]
+    moves: list[list[tuple[int, int]]]
 
     def __init__(self, color, x, y, points):
         self.color = color
@@ -18,12 +18,12 @@ class Piece:
     def move(self, x: int, y: int):
         self.x = x
         self.y = y
-        self.update_moves()
+        self.moves = self.update_moves()
 
-    def get_moves(self) -> [(int, int)]:
+    def get_moves(self) -> list[list[tuple[int, int]]]:
         return self.moves
 
-    def update_moves(self):
+    def update_moves(self) -> list[list[tuple[int, int]]]:
         pass
 
     @classmethod
@@ -49,8 +49,33 @@ class Pawn(Piece):
         if self.y in y0:
             moves.append((self.x, self.y + 2*direction))
 
-        return moves
+        return [moves]
 
     @classmethod
     def update_default_moves(cls):
         cls.moves = None
+
+
+class Rook(Piece):
+    pass
+
+
+class Knight(Piece):
+    pass
+
+
+class Bishop(Piece):
+    pass
+
+
+class Queen(Piece):
+    pass
+
+
+class King(Piece):
+    pass
+
+
+class Blank(Piece):
+    def __init__(self, x, y):
+        super(Blank, self).__init__('', x, y, 0)
