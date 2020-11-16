@@ -12,11 +12,13 @@ class Piece:
         self.points = points
         self.moves = []
 
-    def move(self, x: int, y: int) -> bool:
-        pass
+    def move(self, x: int, y: int):
+        self.x = x
+        self.y = y
+        self.update_moves()
 
-    def get_moves(self) -> [(int, int)]:
-        return self.moves
+    def get_moves(self) -> [(int, int), (int, int)]:
+        return [((self.x, self.y), (m[0], m[1])) for m in self.moves]
 
     def update_moves(self):
         pass
