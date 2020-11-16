@@ -22,11 +22,11 @@ class GameInstance:
         self.strategy = AIStrategyFactory.get_strategy(self.config.get('ai_strategy', 'random_legal'))
         self.board = Board(board)
 
-    async def play(self, turn_token, server, board=None):
+    async def play(self, turn_token, server, color, board=None):
         if board:
             self.board.update(board)
 
-        move = self.strategy.play(self, board)
+        move = self.strategy.play(self, self.board, color)
         move.execute()
         y1, x1, y2, x2 = move.to_coords()
 
