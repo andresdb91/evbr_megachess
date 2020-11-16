@@ -25,7 +25,7 @@ class GameInstance:
     async def play(self, turn_token, server, board=None):
         if board:
             self.board.update(board)
-        y1, x1, y2, x2 = self.strategy.play(board)
+        y1, x1, y2, x2 = self.strategy.play(self, board)
         await server.send(
             'move',
             {
