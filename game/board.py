@@ -34,8 +34,15 @@ class Board:
 
     def move(self, piece: Piece, x: int, y: int):
         self.current[piece.y][piece.x] = Blank(piece.x, piece.y)
+        # Promote pawns on 7(black)/8(white)
+        if isinstance(piece, Pawn) and y == WHITE_PROMOTE and piece.color == 'white':
+            piece = Queen('white', x, y)
+        elif isinstance(piece, Pawn) and y == BLACK_PROMOTE and piece.color == 'black':
+            piece = Queen('black', x, y)
+        else:
+            piece.move(x, y)
+
         self.current[y][x] = piece
-        piece.move(x, y)
 
     def update(self, board):
         pass
@@ -44,13 +51,18 @@ class Board:
         moves = []
         for row in self.current:
             for piece in row:
-                if piece is not None and piece.color == color:
+                if not isinstance(piece, Blank) and piece.color == color:
                     all_moves = piece.get_moves()
                     for move_group in all_moves:
                         for (x, y) in move_group:
                             square: Piece = self.current[y][x]
-                            if square is not None and square.color == color:
+                            if not isinstance(square, Blank) and square.color == color:
                                 break
+                            if isinstance(piece, Pawn):
+                                if piece.x == x and not isinstance(square, Blank):
+                                    break
+                                elif piece.x != x and (isinstance(square, Blank) or square.color == color):
+                                    break
                             new_move = Move(
                                 board=self,
                                 piece=piece,
@@ -63,10 +75,10 @@ class Board:
                             moves.append(new_move)
                             if isinstance(piece, Pawn):
                                 if color == 'white':
-                                    new_move.weight += PROMOTE_BONUS/(1 + (WHITE_PROMOTE - y))
+                                    new_move.weight += PROMOTE_BONUS/(1 + abs(WHITE_PROMOTE - y))
                                 else:
-                                    new_move.weight += PROMOTE_BONUS/(1 + (BLACK_PROMOTE - y))
-                            if square is not None:
+                                    new_move.weight += PROMOTE_BONUS/(1 + abs(BLACK_PROMOTE - y))
+                            if not isinstance(square, Blank):
                                 new_move.weight += square.points * 10
                                 break
         return moves
