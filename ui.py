@@ -1,4 +1,29 @@
+import asyncio
+from game.client import GameClient
+
+
 class UI:
 
+    game: GameClient
+    valid_commands = [
+        'users',
+        'challenge',
+        'auto-accept',
+        'quit',
+    ]
+
+    def __init__(self, game):
+        self.game = game
+
     def cli(self):
-        pass
+        while True:
+            command = input('MegaChess CLI: ')
+            if command == 'help':
+                print('users: updates and shows current online users')
+                print('challenge [<user>]: sends a challenge to a specific or random user')
+                print('auto-accept [on | off]: Enables or disables challenge autoaccept')
+                print('quit: Disconnects the websocket and exits the program')
+            elif command.split(' ')[0] in self.valid_commands:
+                self.game.cli_commands.put(command)
+            else:
+                print('Invalid command, to view all commands type "help"')
