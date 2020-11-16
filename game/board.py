@@ -18,6 +18,7 @@ class Board:
         'k': King,
         ' ': Blank,
     }
+    piece_charmap_inv = {v: k for k, v in piece_charmap.items()}
 
     def __init__(self, board):
         self.current = []
@@ -44,8 +45,33 @@ class Board:
 
         self.current[y][x] = piece
 
+    def to_char_array(self):
+        char_board = []
+        for row in self.current:
+            for square in row:
+                char_board.append(self.piece_charmap_inv[square.__class__])
+        return char_board
+
     def update(self, board):
-        pass
+        old_board = self.to_char_array()
+        new_board = list(board)
+
+        orig: tuple[int, int] = (-1, -1)
+        dest: tuple[int, int] = (-1, -1)
+
+        for i in range(0, len(old_board)):
+            if old_board[i] != new_board[i]:
+                coord = (i % 16, int(i/16))
+                if new_board[i] == ' ':
+                    orig = coord
+                else:
+                    dest = coord
+
+        if orig[0] >= 0 and dest[0] >= 0:
+            piece = self.current[orig[1]][orig[0]]
+            self.current[orig[1]][orig[0]] = Blank(orig[0], orig[1])
+            self.current[dest[1]][dest[0]] = piece
+            piece.move(dest[0], dest[1])
 
     def get_moves(self, color) -> [Move]:
         moves = []
