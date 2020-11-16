@@ -3,7 +3,7 @@ from game.pieces import *
 
 WHITE_PROMOTE = 8
 BLACK_PROMOTE = 7
-PROMOTE_BONUS = 100
+PROMOTE_BONUS = 500
 
 
 class Board:
@@ -49,7 +49,10 @@ class Board:
         char_board = []
         for row in self.current:
             for square in row:
-                char_board.append(self.piece_charmap_inv[square.__class__])
+                char_piece = self.piece_charmap_inv[square.__class__]
+                if square.color == 'white':
+                    char_piece = char_piece.upper()
+                char_board.append(char_piece)
         return char_board
 
     def update(self, board):
@@ -71,7 +74,7 @@ class Board:
             piece = self.current[orig[1]][orig[0]]
             self.current[orig[1]][orig[0]] = Blank(orig[0], orig[1])
             self.current[dest[1]][dest[0]] = piece
-            piece.move(dest[0], dest[1])
+            self.move(piece, dest[0], dest[1])
 
     def get_moves(self, color) -> [Move]:
         moves = []
