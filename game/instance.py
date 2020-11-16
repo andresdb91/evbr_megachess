@@ -19,13 +19,17 @@ class GameInstance:
         self.opponent = opponent
         self.move_left = move_left
         self.color = color
-        self.strategy = AIStrategyFactory.get_strategy(self.config.get('ai_strategy', 'random'))
+        self.strategy = AIStrategyFactory.get_strategy(self.config.get('ai_strategy', 'random_legal'))
         self.board = Board(board)
 
     async def play(self, turn_token, server, board=None):
         if board:
             self.board.update(board)
-        y1, x1, y2, x2 = self.strategy.play(self, board)
+
+        move = self.strategy.play(self, board)
+        move.execute()
+        y1, x1, y2, x2 = move.to_coords()
+
         await server.send(
             'move',
             {
