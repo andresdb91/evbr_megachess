@@ -15,13 +15,7 @@ class Pawn(Piece):
             y0 = [12, 13]
             direction = -1
 
-        self.moves.append((
-            (self.x, self.y),
-            (self.x, self.y + direction)
-        ))
+        self.moves.append((self.x, self.y + direction))
 
         if self.y in y0:
-            self.moves.append((
-                (self.x, self.y),
-                (self.x, self.y + 2*direction)
-            ))
+            self.moves.append((self.x, self.y + 2*direction))
