@@ -1,6 +1,10 @@
-from game.strategies.base_strat import BaseStrategy
-
 from random import randint
+
+
+class BaseStrategy:
+    @staticmethod
+    def play(instance, board, color):
+        pass
 
 
 class RandomLegal(BaseStrategy):

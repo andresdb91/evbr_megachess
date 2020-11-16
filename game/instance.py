@@ -1,5 +1,5 @@
-from game.strategies.base_strat import BaseStrategy
-from game.strategies.strategies_fact import AIStrategyFactory
+from game.strategies import BaseStrategy
+from game.strategies_fact import AIStrategyFactory
 from game.board import Board
 
 
