@@ -11,6 +11,7 @@ class Piece:
         self.y = y
         self.points = points
         self.moves = []
+        self.update_moves()
 
     def move(self, x: int, y: int):
         self.x = x
