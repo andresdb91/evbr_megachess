@@ -40,10 +40,10 @@ class Pawn(Piece):
     def update_moves(self):
         if self.color == 'white':
             y0 = [2, 3]
-            direction = 1
+            direction = -1
         else:
             y0 = [12, 13]
-            direction = -1
+            direction = 1
 
         moves = [(self.x, self.y + direction)]
         if self.y in y0:
