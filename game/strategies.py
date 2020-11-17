@@ -13,14 +13,15 @@ CENTRAL_POSITION_BONUS = 50
 
 
 class BaseStrategy:
-    @staticmethod
-    def play(instance: 'GameInstance', board: Board, color: str) -> Move:
+    def play(self, instance: 'GameInstance', board: Board, color: str) -> Move:
         pass
+
+    def weight_move(self, board: Board, color: str, move: Move) -> int:
+        return 0
 
 
 class RandomLegal(BaseStrategy):
-    @staticmethod
-    def play(instance: 'GameInstance', board: Board, color: str) -> Move:
+    def play(self, instance: 'GameInstance', board: Board, color: str) -> Move:
         moves = board.get_moves(color)
 
         pick = moves[randint(0, len(moves)-1)]
@@ -29,8 +30,7 @@ class RandomLegal(BaseStrategy):
 
 
 class MaximumPointMove(BaseStrategy):
-    @staticmethod
-    def play(instance: 'GameInstance', board: Board, color: str) -> Move:
+    def play(self, instance: 'GameInstance', board: Board, color: str) -> Move:
         moves = board.get_moves(color)
         if len(moves) == 0:
             raise SystemError()
@@ -38,34 +38,26 @@ class MaximumPointMove(BaseStrategy):
         best_move = moves[0]
 
         for m in moves:
-            if m.points > best_move.weight:
+            if m.points > best_move.points:
                 best_move = m
 
         return best_move
 
 
 class MaximumWeight(BaseStrategy):
-    @staticmethod
-    def play(instance: 'GameInstance', board: Board, color: str) -> Move:
+    def play(self, instance: 'GameInstance', board: Board, color: str) -> Move:
         moves = board.get_moves(color)
         if len(moves) == 0:
             raise SystemError()
         shuffle(moves)
+        m = moves.pop()
         best_move = {
-            'move': moves[0],
-            'weight': 0,
+            'move': m,
+            'weight': self.weight_move(board, color, m),
         }
 
         for m in moves:
-            w = m.points
-            if isinstance(m.piece, pieces.Pawn):
-                w += CENTRAL_POSITION_BONUS / (1 + abs(8 - m.from_x))
-                if color == 'white':
-                    w += PROMOTE_BONUS / (1 + abs(WHITE_PROMOTE - m.to_y))
-                else:
-                    w += PROMOTE_BONUS / (1 + abs(BLACK_PROMOTE - m.to_y))
-            if not isinstance(square := board.current[m.to_y][m.to_x], pieces.Blank):
-                w += square.points * 10
+            w = self.weight_move(board, color, m)
             if w > best_move['weight']:
                 best_move = {
                     'move': m,
@@ -74,35 +66,22 @@ class MaximumWeight(BaseStrategy):
 
         return best_move['move']
 
+    def weight_move(self, board: Board, color: str, move: Move) -> int:
+        w = move.points
+        if isinstance(move.piece, pieces.Pawn):
+            w += CENTRAL_POSITION_BONUS / (1 + abs(randint(6, 9) - move.from_x))
+            if color == 'white' and isinstance(board.current[WHITE_PROMOTE][move.to_x], pieces.Blank):
+                w += PROMOTE_BONUS / (1 + abs(WHITE_PROMOTE - move.to_y))
+            elif isinstance(board.current[BLACK_PROMOTE][move.to_x], pieces.Blank):
+                w += PROMOTE_BONUS / (1 + abs(BLACK_PROMOTE - move.to_y))
+        if not isinstance(square := board.current[move.to_y][move.to_x], pieces.Blank):
+            w += square.points * 10
+        return w
 
-class OnlyPawnsAndQueensByWeight(BaseStrategy):
-    @staticmethod
-    def play(instance: 'GameInstance', board: Board, color: str) -> Move:
-        moves = board.get_moves(color)
-        if len(moves) == 0:
-            return Move()
-        shuffle(moves)
-        best_move = {
-            'move': moves[0],
-            'weight': 0,
-        }
 
-        for m in moves:
-            if type(m.piece) not in [pieces.Pawn, pieces.Queen]:
-                continue
-            w = m.points
-            if isinstance(m.piece, pieces.Pawn):
-                w += CENTRAL_POSITION_BONUS / (1 + abs(8 - m.from_x))
-                if color == 'white':
-                    w += PROMOTE_BONUS / (1 + abs(WHITE_PROMOTE - m.to_y))
-                else:
-                    w += PROMOTE_BONUS / (1 + abs(BLACK_PROMOTE - m.to_y))
-            if not isinstance(square := board.current[m.to_y][m.to_x], pieces.Blank):
-                w += square.points * 10
-            if w > best_move['weight']:
-                best_move = {
-                    'move': m,
-                    'weight': w,
-                }
-
-        return best_move['move']
+class OnlyPawnsAndQueensByWeight(MaximumWeight):
+    def weight_move(self, board: Board, color: str, move: Move) -> int:
+        if type(move.piece) not in [pieces.Pawn, pieces.Queen]:
+            return -1
+        else:
+            return super(OnlyPawnsAndQueensByWeight, self).weight_move(board, color, move)
