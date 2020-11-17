@@ -28,7 +28,7 @@ class GameInstance:
 
         move = self.strategy.play(self, self.board, color)
         move.execute()
-        y1, x1, y2, x2 = move.to_coords()
+        x1, y1, x2, y2 = move.to_coords()
 
         await server.send(
             'move',

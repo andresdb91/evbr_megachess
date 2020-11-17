@@ -28,5 +28,5 @@ class Move:
     def execute(self):
         self.board.move(self.piece, self.to_x, self.to_y)
 
-    def to_coords(self):
-        return self.from_y, self.from_x, self.to_y, self.to_x
+    def to_coords(self) -> tuple[int, int, int, int]:
+        return self.from_x, self.from_y, self.to_x, self.to_y
