@@ -1,4 +1,5 @@
 from random import randint
+from random import shuffle
 from game import pieces
 
 PROMOTE_BONUS = 500
@@ -26,6 +27,7 @@ class MaximumPointMove(BaseStrategy):
     @staticmethod
     def play(instance, board, color):
         moves = board.get_moves(color)
+        shuffle(moves)
         best_move = None
 
         for m in moves:
@@ -39,6 +41,7 @@ class MaximumWeight(BaseStrategy):
     @staticmethod
     def play(instance, board, color):
         moves = board.get_moves(color)
+        shuffle(moves)
         best_move = {
             'move': None,
             'weight': 0,
