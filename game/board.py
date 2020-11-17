@@ -7,9 +7,8 @@ PROMOTE_BONUS = 500
 
 
 class Board:
-
     current: list[list[Piece]]
-    piece_charmap = {
+    piece_charmap: dict[str, type[Piece]] = {
         'p': Pawn,
         'r': Rook,
         'h': Knight,
@@ -18,20 +17,25 @@ class Board:
         'k': King,
         ' ': Blank,
     }
-    piece_charmap_inv = {v: k for k, v in piece_charmap.items()}
+    piece_charmap_inv: dict[type[Piece]: str] = {v: k for k, v in piece_charmap.items()}
 
-    def __init__(self, board):
-        self.current = []
+    def __init__(self, board: str):
+        self.current = Board.build_board(board)
+
+    @staticmethod
+    def build_board(board_char: str) -> list[list[Piece]]:
+        board = []
         for y in range(0, 16):
-            self.current.append([])
+            board.append([])
             for x in range(0, 16):
-                piece_char = board[16*y + x]
+                piece_char = board_char[16*y + x]
                 if piece_char != ' ':
                     color = 'white' if piece_char.isupper() else 'black'
                     square = Board.piece_charmap[piece_char.lower()](color, x, y)
                 else:
                     square = Blank(x, y)
-                self.current[y].append(square)
+                board[y].append(square)
+        return board
 
     def move(self, piece: Piece, x: int, y: int):
         self.current[piece.y][piece.x] = Blank(piece.x, piece.y)
@@ -45,7 +49,7 @@ class Board:
 
         self.current[y][x] = piece
 
-    def to_char_array(self):
+    def to_char_array(self) -> list[str]:
         char_board = []
         for row in self.current:
             for square in row:
@@ -55,28 +59,32 @@ class Board:
                 char_board.append(char_piece)
         return char_board
 
-    def update(self, board):
+    def update(self, board: str):
         old_board = self.to_char_array()
         new_board = list(board)
 
-        orig: tuple[int, int] = (-1, -1)
-        dest: tuple[int, int] = (-1, -1)
+        orig = None
+        dest = None
 
         for i in range(0, len(old_board)):
             if old_board[i] != new_board[i]:
                 coord = (i % 16, int(i/16))
-                if new_board[i] == ' ':
+                if new_board[i] == ' ' and orig is None:
                     orig = coord
-                else:
+                elif dest is None:
                     dest = coord
+                else:
+                    print('Board desync, rebuilding')
+                    self.current = Board.build_board(board)
+                    return
 
-        if orig[0] >= 0 and dest[0] >= 0:
+        if all([orig, dest]):
             piece = self.current[orig[1]][orig[0]]
             self.current[orig[1]][orig[0]] = Blank(orig[0], orig[1])
             self.current[dest[1]][dest[0]] = piece
             self.move(piece, dest[0], dest[1])
 
-    def get_moves(self, color) -> [Move]:
+    def get_moves(self, color: str) -> list[Move]:
         moves = []
         for row in self.current:
             for piece in row:
@@ -105,7 +113,7 @@ class Board:
                                 break
         return moves
 
-    def get_all_moves(self, color):
+    def get_all_moves(self, color: str) -> tuple[list[Move], list[Move]]:
         if color == 'white':
             return self.get_moves('white'), self.get_moves('black')
         else:

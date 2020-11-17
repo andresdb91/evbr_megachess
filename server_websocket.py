@@ -20,7 +20,7 @@ class ServerWebsocketAdap:
                 print(f'Error: {e}')
                 raise
 
-    async def recv(self):
+    async def recv(self) -> dict:
         response = await self.websocket.recv()
         print(f'Recv: {response}')
         return json.loads(response)

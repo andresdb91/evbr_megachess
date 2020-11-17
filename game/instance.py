@@ -2,27 +2,40 @@ from game.strategies import BaseStrategy
 from game.strategies_fact import AIStrategyFactory
 from game.board import Board
 
+from datetime import datetime
+from server_websocket import ServerWebsocketAdap
+
 
 class GameInstance:
 
     config = {}
     board_id: str
     opponent: str
-    move_left: str
+    move_left: int
     color: str
     strategy: BaseStrategy
     board: Board
 
-    def __init__(self, config, board_id, opponent, move_left, color, board):
+    last_move: datetime
+
+    def __init__(
+            self,
+            config: dict,
+            board_id: str,
+            opponent: str,
+            move_left: str,
+            color: str,
+            board: str
+    ):
         self.config = config.copy()
         self.board_id = board_id
         self.opponent = opponent
-        self.move_left = move_left
+        self.move_left = int(move_left)
         self.color = color
         self.strategy = AIStrategyFactory.get_strategy(self.config.get('ai_strategy', 'random_legal'))
         self.board = Board(board)
 
-    async def play(self, turn_token, server, color, board=None):
+    async def play(self, turn_token: str, server: ServerWebsocketAdap, color: str, board: str = None):
         if board:
             self.board.update(board)
 

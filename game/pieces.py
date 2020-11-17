@@ -5,7 +5,7 @@ class Piece:
     points: int
     moves: list[list[tuple[int, int]]] = None
 
-    def __init__(self, color, x, y, points):
+    def __init__(self, color: str, x: int, y: int, points: int):
         self.color = color
         self.x = x
         self.y = y
@@ -24,18 +24,18 @@ class Piece:
         return self.moves
 
     @staticmethod
-    def update_moves(x, y, color) -> list[list[tuple[int, int]]]:
+    def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
         return [[]]
 
 
 class Pawn(Piece):
     POINTS = 10
 
-    def __init__(self, color, x, y):
+    def __init__(self, color: str, x: int, y: int):
         super(Pawn, self).__init__(color, x, y, Pawn.POINTS)
 
     @staticmethod
-    def update_moves(x, y, color):
+    def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
         if color == 'white':
             y0 = [12, 13]
             direction = -1
@@ -65,12 +65,11 @@ class Pawn(Piece):
 class Rook(Piece):
     POINTS = 60
 
-    def __init__(self, color, x, y):
+    def __init__(self, color: str, x: int, y: int):
         super(Rook, self).__init__(color, x, y, Rook.POINTS)
 
     @staticmethod
-    def update_moves(x, y, color) -> list[list[tuple[int, int]]]:
-
+    def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
         move = [
             l := [],
             t := [],
@@ -94,12 +93,11 @@ class Rook(Piece):
 class Knight(Piece):
     POINTS = 30
 
-    def __init__(self, color, x, y):
+    def __init__(self, color: str, x: int, y: int):
         super(Knight, self).__init__(color, x, y, Knight.POINTS)
 
     @staticmethod
-    def update_moves(x, y, color) -> list[list[tuple[int, int]]]:
-
+    def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
         move = [
             tl := [],
             tr := [],
@@ -138,12 +136,11 @@ class Knight(Piece):
 class Bishop(Piece):
     POINTS = 40
 
-    def __init__(self, color, x, y):
+    def __init__(self, color: str, x: int, y: int):
         super(Bishop, self).__init__(color, x, y, Bishop.POINTS)
 
     @staticmethod
-    def update_moves(x, y, color) -> list[list[tuple[int, int]]]:
-
+    def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
         move = [
             lt := [],
             rt := [],
@@ -173,12 +170,11 @@ class Bishop(Piece):
 class Queen(Piece):
     POINTS = 70
 
-    def __init__(self, color, x, y):
+    def __init__(self, color: str, x: int, y: int):
         super(Queen, self).__init__(color, x, y, Queen.POINTS)
 
     @staticmethod
-    def update_moves(x, y, color) -> list[list[tuple[int, int]]]:
-
+    def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
         move = [
             l := [],
             lt := [],
@@ -218,12 +214,11 @@ class Queen(Piece):
 class King(Piece):
     POINTS = 100
 
-    def __init__(self, color, x, y):
+    def __init__(self, color: str, x: int, y: int):
         super(King, self).__init__(color, x, y, King.POINTS)
 
     @staticmethod
-    def update_moves(x, y, color) -> list[list[tuple[int, int]]]:
-
+    def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
         move = [
             l := [],
             lt := [],

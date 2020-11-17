@@ -2,7 +2,7 @@ import game.strategies
 
 
 class AIStrategyFactory:
-    default_strategy = game.strategies.RandomLegal
+    default_strategy: game.strategies.BaseStrategy = game.strategies.RandomLegal
 
     @staticmethod
     def get_strategy(name: str) -> game.strategies.BaseStrategy:

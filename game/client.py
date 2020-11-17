@@ -13,15 +13,15 @@ GAME_TIMEOUT = 15
 
 class GameClient:
 
-    config: {}
-    game_list: {}
-    game_results: {}
+    config: dict
+    game_list: dict[str, GameInstance]
+    game_results: dict
     user_list: [str]
     server: ServerWebsocketAdap
     cli_commands: queue.Queue
     execute: bool
 
-    def __init__(self, config):
+    def __init__(self, config: dict):
         self.config = config.copy()
         self.game_results = {
             'victories': {

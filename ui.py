@@ -13,7 +13,7 @@ class UI:
         'config',
     ]
 
-    def __init__(self, game):
+    def __init__(self, game: GameClient):
         self.game = game
 
     def cli(self):

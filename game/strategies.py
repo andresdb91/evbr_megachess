@@ -2,6 +2,9 @@ from random import randint
 from random import shuffle
 from game import pieces
 
+from game.board import Board
+from game.move import Move
+
 WHITE_PROMOTE = 8
 BLACK_PROMOTE = 7
 
@@ -11,13 +14,13 @@ CENTRAL_POSITION_BONUS = 50
 
 class BaseStrategy:
     @staticmethod
-    def play(instance, board, color):
+    def play(instance: 'GameInstance', board: Board, color: str) -> Move:
         pass
 
 
 class RandomLegal(BaseStrategy):
     @staticmethod
-    def play(instance, board, color):
+    def play(instance: 'GameInstance', board: Board, color: str) -> Move:
         moves = board.get_moves(color)
 
         pick = moves[randint(0, len(moves)-1)]
@@ -27,13 +30,15 @@ class RandomLegal(BaseStrategy):
 
 class MaximumPointMove(BaseStrategy):
     @staticmethod
-    def play(instance, board, color):
+    def play(instance: 'GameInstance', board: Board, color: str) -> Move:
         moves = board.get_moves(color)
+        if len(moves) == 0:
+            raise SystemError()
         shuffle(moves)
-        best_move = None
+        best_move = moves[0]
 
         for m in moves:
-            if best_move is None or m.points > best_move.weight:
+            if m.points > best_move.weight:
                 best_move = m
 
         return best_move
@@ -41,11 +46,13 @@ class MaximumPointMove(BaseStrategy):
 
 class MaximumWeight(BaseStrategy):
     @staticmethod
-    def play(instance, board, color):
+    def play(instance: 'GameInstance', board: Board, color: str) -> Move:
         moves = board.get_moves(color)
+        if len(moves) == 0:
+            raise SystemError()
         shuffle(moves)
         best_move = {
-            'move': None,
+            'move': moves[0],
             'weight': 0,
         }
 
@@ -59,10 +66,10 @@ class MaximumWeight(BaseStrategy):
                     w += PROMOTE_BONUS / (1 + abs(BLACK_PROMOTE - m.to_y))
             if not isinstance(square := board.current[m.to_y][m.to_x], pieces.Blank):
                 w += square.points * 10
-            if best_move['move'] is None or w > best_move['weight']:
+            if w > best_move['weight']:
                 best_move = {
                     'move': m,
                     'weight': w,
                 }
 
-        return best_move
+        return best_move['move']
