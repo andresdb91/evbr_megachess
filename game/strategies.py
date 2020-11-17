@@ -80,7 +80,7 @@ class OnlyPawnsAndQueensByWeight(BaseStrategy):
     def play(instance: 'GameInstance', board: Board, color: str) -> Move:
         moves = board.get_moves(color)
         if len(moves) == 0:
-            raise SystemError()
+            return Move()
         shuffle(moves)
         best_move = {
             'move': moves[0],
