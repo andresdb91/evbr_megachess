@@ -20,7 +20,6 @@ class GameClient:
     user_list: [str]
     server: ServerWebsocketAdap
     cli_commands: queue.Queue
-    execute: bool
 
     def __init__(self, config: dict):
         self.config = config.copy()
@@ -49,7 +48,7 @@ class GameClient:
         await self.server.exec_with_context(self.run)
 
     async def cli_listener(self):
-        while self.execute:
+        while True:
             try:
                 msg = self.cli_commands.get_nowait()
                 command = msg.split(' ')
@@ -82,7 +81,7 @@ class GameClient:
                     elif command[1] == 'off':
                         self.config['accept_challenges'] = False
                 elif command[0] == 'quit':
-                    self.execute = False
+                    asyncio.get_event_loop().stop()
                 elif command[0] == 'config' and len(command) == 3:
                     value = command[2]
                     if value.isdigit():
@@ -97,7 +96,7 @@ class GameClient:
 
     # Temp fix for missing board_in in gameover event
     async def clean_game_list(self):
-        while self.execute:
+        while True:
             current = datetime.now()
             old_games = []
             for board_id, game in self.game_list.items():
@@ -109,10 +108,10 @@ class GameClient:
             await asyncio.sleep(OLD_GAMES_CHECK_TIME)
 
     async def run(self) -> bool:
-        asyncio.create_task(self.cli_listener())
+        listener = asyncio.create_task(self.cli_listener())
         # Temp fix for missing board_in in gameover event
-        asyncio.create_task(self.clean_game_list())
-        while self.execute:
+        cleaner = asyncio.create_task(self.clean_game_list())
+        while True:
             try:
                 response = await self.server.recv()
                 if response['event'] == 'update_user_list':
@@ -193,4 +192,5 @@ class GameClient:
                 # DEBUG
                 raise
                 # return True
+        listener.cancel()
         return False

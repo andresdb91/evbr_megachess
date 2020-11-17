@@ -11,12 +11,11 @@ class ServerWebsocketAdap:
 
     # TODO: Implement own context manager
     async def exec_with_context(self, callback: callable):
-        condition = True
-        while condition:
+        while True:
             try:
                 async with websockets.connect(self.uri) as self.websocket:
                     print('Connected to websocket server')
-                    condition = await callback()
+                    await callback()
             except Exception as e:
                 print(f'Error: {e}')
                 raise

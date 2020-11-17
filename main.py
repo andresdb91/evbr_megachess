@@ -43,4 +43,9 @@ if __name__ == '__main__':
 
     # Call event loop
     print('Starting game loop')
-    asyncio.run(game.main())
+    try:
+        asyncio.run(game.main())
+    except RuntimeError:
+        exit(1)
+    except Exception:
+        raise

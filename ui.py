@@ -29,5 +29,7 @@ class UI:
                 print('quit: Disconnects the websocket and exits the program')
             elif command.split(' ')[0] in self.valid_commands:
                 self.game.cli_commands.put(command)
+                if command.split(' ')[0] == 'quit':
+                    return
             else:
                 print('Invalid command, to view all commands type "help"')
