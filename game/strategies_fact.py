@@ -12,5 +12,7 @@ class AIStrategyFactory:
             return game.strategies.MaximumPointMove()
         elif name == 'maximum_weight':
             return game.strategies.MaximumWeight()
+        elif name == 'pawns_and_queens':
+            return game.strategies.OnlyPawnsAndQueensByWeight()
         else:
             return AIStrategyFactory.default_strategy()
