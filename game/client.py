@@ -46,7 +46,7 @@ class GameClient:
     async def main(self):
         print(f'Connecting to websocket server: {self.config.get("websocket_uri").format("xxxxx")}')
         self.server = ServerWebsocketAdap(self.config.get('websocket_uri').format(self.config.get('auth_token')))
-        await self.server.exec_with_context(self.run, self.execute)
+        await self.server.exec_with_context(self.run)
 
     async def cli_listener(self):
         while self.execute:
@@ -108,7 +108,7 @@ class GameClient:
                 print(f'Game instances removed: {old_games}')
             await asyncio.sleep(OLD_GAMES_CHECK_TIME)
 
-    async def run(self):
+    async def run(self) -> bool:
         asyncio.create_task(self.cli_listener())
         # Temp fix for missing board_in in gameover event
         asyncio.create_task(self.clean_game_list())
@@ -192,4 +192,5 @@ class GameClient:
                 print('Attempting reconnection...')
                 # DEBUG
                 raise
-                # return
+                # return True
+        return False
