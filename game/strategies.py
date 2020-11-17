@@ -22,6 +22,19 @@ class RandomLegal(BaseStrategy):
         return pick
 
 
+class MaximumPointMove(BaseStrategy):
+    @staticmethod
+    def play(instance, board, color):
+        moves = board.get_moves(color)
+        best_move = None
+
+        for m in moves:
+            if best_move is None or m.points > best_move.weight:
+                best_move = m
+
+        return best_move
+
+
 class MaximumWeight(BaseStrategy):
     @staticmethod
     def play(instance, board, color):
