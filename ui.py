@@ -10,6 +10,7 @@ class UI:
         'challenge',
         'auto-accept',
         'quit',
+        'config',
     ]
 
     def __init__(self, game):
@@ -22,6 +23,7 @@ class UI:
                 print('users: updates and shows current online users')
                 print('challenge [<user>]: sends a challenge to a specific or random user')
                 print('auto-accept [on | off]: Enables or disables challenge autoaccept')
+                print('config <key> <value>: Changes a configuration value')
                 print('quit: Disconnects the websocket and exits the program')
             elif command.split(' ')[0] in self.valid_commands:
                 self.game.cli_commands.put(command)

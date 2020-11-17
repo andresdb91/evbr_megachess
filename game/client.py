@@ -55,20 +55,19 @@ class GameClient:
                 if command[0] == 'users':
                     await self.server.send('get_connected_users', {})
                 elif len(command) >= 2 and command[0] == 'challenge':
-                    if type(command[1]) == str:
-                        if len(command) > 2 and type(command[2]) == str:
-                            await self.server.send(
-                                'challenge',
-                                {
-                                    'username': command[1],
-                                    'message': command[2],
-                                }
-                            )
-                        else:
-                            await self.server.send(
-                                'challenge',
-                                {'username': command[1]}
-                            )
+                    if len(command) > 2:
+                        await self.server.send(
+                            'challenge',
+                            {
+                                'username': command[1],
+                                'message': command[2:],
+                            }
+                        )
+                    else:
+                        await self.server.send(
+                            'challenge',
+                            {'username': command[1]}
+                        )
                 elif len(command) == 2 and command[0] == 'auto-accept':
                     if command[1] == 'on':
                         self.config['accept_challenges'] = True
@@ -76,6 +75,15 @@ class GameClient:
                         self.config['accept_challenges'] = False
                 elif command[0] == 'quit':
                     self.execute = False
+                elif command[0] == 'config' and len(command) == 3:
+                    value = command[2]
+                    if value.isdigit():
+                        value = int(value)
+                    elif value.lower() in ['true', 'on']:
+                        value = True
+                    elif value.lower() in ['false', 'off']:
+                        value = False
+                    self.config[command[1]] = value
             except queue.Empty:
                 await asyncio.sleep(0.5)
 
