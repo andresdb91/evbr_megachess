@@ -1,5 +1,6 @@
 import asyncio
 import queue
+from random import randint
 
 # Temporary fix for missing board_id in gameover event
 from datetime import datetime, timedelta
@@ -68,6 +69,13 @@ class GameClient:
                             'challenge',
                             {'username': command[1]}
                         )
+                elif command[0] == 'randomchallenge':
+                    await self.server.send(
+                        'challenge',
+                        {
+                            'username': self.user_list[randint(0, len(self.user_list)-1)],
+                        }
+                    )
                 elif len(command) == 2 and command[0] == 'auto-accept':
                     if command[1] == 'on':
                         self.config['accept_challenges'] = True

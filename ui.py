@@ -8,9 +8,10 @@ class UI:
     valid_commands = [
         'users',
         'challenge',
+        'randomchallenge',
         'auto-accept',
-        'quit',
         'config',
+        'quit',
     ]
 
     def __init__(self, game: GameClient):
@@ -21,7 +22,8 @@ class UI:
             command = input('MegaChess CLI: ')
             if command == 'help':
                 print('users: updates and shows current online users')
-                print('challenge [<user>]: sends a challenge to a specific or random user')
+                print('challenge [<user>]: sends a challenge to a specific user')
+                print('randomchallenge: sends a challenge to a random online user')
                 print('auto-accept [on | off]: Enables or disables challenge autoaccept')
                 print('config <key> <value>: Changes a configuration value')
                 print('quit: Disconnects the websocket and exits the program')
