@@ -92,23 +92,16 @@ class Board:
                                     break
                                 elif piece.x != x and (isinstance(square, Blank) or square.color == color):
                                     break
-                            new_move = Move(
+                            moves.append(Move(
                                 board=self,
                                 piece=piece,
                                 from_x=piece.x,
                                 from_y=piece.y,
                                 to_x=x,
                                 to_y=y,
-                                weight=piece.points
-                            )
-                            moves.append(new_move)
-                            if isinstance(piece, Pawn):
-                                if color == 'white':
-                                    new_move.weight += PROMOTE_BONUS/(1 + abs(WHITE_PROMOTE - y))
-                                else:
-                                    new_move.weight += PROMOTE_BONUS/(1 + abs(BLACK_PROMOTE - y))
+                                points=piece.points
+                            ))
                             if not isinstance(square, Blank):
-                                new_move.weight += square.points * 10
                                 break
         return moves
 

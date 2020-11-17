@@ -15,7 +15,7 @@ class Move:
             to_y,
             piece,
             board,
-            weight,
+            points,
     ):
         self.from_x = from_x
         self.from_y = from_y
@@ -23,7 +23,7 @@ class Move:
         self.to_y = to_y
         self.piece = piece
         self.board = board
-        self.weight = weight
+        self.weight = points
 
     def execute(self):
         self.board.move(self.piece, self.to_x, self.to_y)

@@ -1,4 +1,9 @@
 from random import randint
+from game import pieces
+
+PROMOTE_BONUS = 500
+WHITE_PROMOTE = 8
+BLACK_PROMOTE = 7
 
 
 class BaseStrategy:
@@ -21,10 +26,24 @@ class MaximumWeight(BaseStrategy):
     @staticmethod
     def play(instance, board, color):
         moves = board.get_moves(color)
-        best_move = None
+        best_move = {
+            'move': None,
+            'weight': 0,
+        }
 
         for m in moves:
-            if best_move is None or m.weight > best_move.weight:
-                best_move = m
+            w = m.points
+            if isinstance(m.piece, pieces.Pawn):
+                if color == 'white':
+                    w += PROMOTE_BONUS / (1 + abs(WHITE_PROMOTE - m.to_y))
+                else:
+                    w += PROMOTE_BONUS / (1 + abs(BLACK_PROMOTE - m.to_y))
+            if not isinstance(square := board.current[m.to_y][m.to_x], pieces.Blank):
+                w += square.points * 10
+            if best_move['move'] is None or w > best_move['weight']:
+                best_move = {
+                    'move': m,
+                    'weight': w,
+                }
 
         return best_move
