@@ -2,9 +2,11 @@ from random import randint
 from random import shuffle
 from game import pieces
 
-PROMOTE_BONUS = 500
 WHITE_PROMOTE = 8
 BLACK_PROMOTE = 7
+
+PROMOTE_BONUS = 500
+CENTRAL_POSITION_BONUS = 50
 
 
 class BaseStrategy:
@@ -50,6 +52,7 @@ class MaximumWeight(BaseStrategy):
         for m in moves:
             w = m.points
             if isinstance(m.piece, pieces.Pawn):
+                w += CENTRAL_POSITION_BONUS / (1 + abs(8 - m.from_x))
                 if color == 'white':
                     w += PROMOTE_BONUS / (1 + abs(WHITE_PROMOTE - m.to_y))
                 else:
