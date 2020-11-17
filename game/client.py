@@ -2,7 +2,6 @@ import asyncio
 import queue
 from random import randint
 
-# Temporary fix for missing board_id in gameover event
 from datetime import datetime, timedelta
 
 from game.instance import GameInstance
@@ -116,26 +115,36 @@ class GameClient:
                     if self.user_list != response['data']['users_list']:
                         self.user_list = response['data']['users_list'].copy()
                 elif response['event'] == 'gameover':
-                    if game_instance := self.game_list.get(response['data']['board_id']):
-                        white_score = int(response['data']['white_score'])
-                        black_score = int(response['data']['black_score'])
-                        print(f'Game results:')
+                    game_instance = self.game_list.pop(response['data']['board_id'], None)
+                    white_score = int(response['data']['white_score'])
+                    black_score = int(response['data']['black_score'])
+                    if game_instance:
+                        color = game_instance.color
+                    else:
+                        if response['data']['white_username'] == self.config.get('username', ''):
+                            color = 'white'
+                        else:
+                            color = 'black'
+                    print(f'Game results for board: {response["data"]["board_id"]}')
+                    if response['data']['white_username'] == response['data']['black_username']:
+                        print(f'Self-challenge: w -> {white_score} | b -> {black_score}')
+                    else:
                         if white_score > black_score:
-                            if game_instance.color == 'white':
-                                print(f'Victory: {white_score} to {black_score} points')
+                            if color == 'white':
+                                print(f'Victory as white: {white_score} to {black_score} points')
                                 self.game_results['victories']['count'] += 1
                                 self.game_results['victories']['points'].append((white_score, black_score))
                             else:
-                                print(f'Defeat: {black_score} to {white_score} points')
+                                print(f'Defeat as white: {black_score} to {white_score} points')
                                 self.game_results['defeats']['count'] += 1
                                 self.game_results['defeats']['points'].append((white_score, black_score))
                         elif black_score > white_score:
-                            if game_instance.color == 'black':
-                                print(f'Victory: {black_score} to {white_score} points')
+                            if color == 'black':
+                                print(f'Victory as black: {black_score} to {white_score} points')
                                 self.game_results['victories']['count'] += 1
                                 self.game_results['victories']['points'].append((black_score, white_score))
                             else:
-                                print(f'Defeat: {white_score} to {black_score} points')
+                                print(f'Defeat as black: {white_score} to {black_score} points')
                                 self.game_results['defeats']['count'] += 1
                                 self.game_results['defeats']['points'].append((black_score, white_score))
                         else:
