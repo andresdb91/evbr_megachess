@@ -32,6 +32,7 @@ class GameInstance:
             board: str
     ):
         self.config = config.copy()
+        self.player = self.config.get('username', '')
         self.board_id = board_id
         self.opponent = opponent
         self.color = color
@@ -42,7 +43,7 @@ class GameInstance:
         self.move_history = []
 
     async def play(self, turn_token: str, server: ServerWebsocketAdap, color: str, board: str = None):
-        if board:
+        if board and self.player != self.opponent:
             opponent_move = self.board.update(board, color)
             if self.save_history:
                 if opponent_move.points != 0:
