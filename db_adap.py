@@ -10,6 +10,7 @@ class SavedData:
     connection: sqlite3.Connection
     next_match_id: int
 
+    match_check_query = f"SELECT * FROM {MATCH_TABLE} WHERE board_id=?"
     match_insert_query = f"INSERT INTO {MATCH_TABLE} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
     move_insert_query = f"INSERT INTO {MOVE_TABLE} VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 
@@ -81,11 +82,19 @@ class SavedData:
         match_id = self.next_match_id
 
         c = self.connection.cursor()
+        c.execute(self.match_check_query, match.board_id)
+        if c.fetchone():
+            print(f'Duplicate match: {match.board_id}')
+            return
+
         c.execute(self.match_insert_query, match_params)
+        print(f'Saved match: {match.board_id} as {match_id}')
         self.next_match_id = c.lastrowid
 
         if match.save_history:
             self.store_moves(match_id, match.move_history)
+        else:
+            print(f'Moves not available for match {match_id}')
 
     def store_moves(self, match_id: int, moves: list[Move]):
         move_params = [
@@ -103,6 +112,7 @@ class SavedData:
         ]
         c = self.connection.cursor()
         c.executemany(self.move_insert_query, move_params)
+        print(f'Saved {len(move_params)} moves to match [{match_id}]')
 
     def store_match_no_instance(self):
         pass
