@@ -37,7 +37,8 @@ class Board:
                 board[y].append(square)
         return board
 
-    def move(self, piece: Piece, x: int, y: int):
+    def move(self, from_x: int, from_y: int, x: int, y: int):
+        piece = self.current[from_y][from_x]
         self.current[piece.y][piece.x] = Blank(piece.x, piece.y)
         # Promote pawns on 7(black)/8(white)
         if isinstance(piece, Pawn) and y == WHITE_PROMOTE and piece.color == 'white':
@@ -83,7 +84,7 @@ class Board:
             self.current[orig[1]][orig[0]] = Blank(orig[0], orig[1])
             square = self.current[dest[1]][dest[0]]
             self.current[dest[1]][dest[0]] = piece
-            self.move(piece, dest[0], dest[1])
+            self.move(orig[0], orig[1], dest[0], dest[1])
 
             points = piece.points
             if isinstance(piece, Pawn):
@@ -98,13 +99,11 @@ class Board:
                 orig[1],
                 dest[0],
                 dest[1],
-                piece,
                 self,
                 points
             )
         else:
             return Move(
-                piece=Blank(0, 0, color),
                 board=self,
                 points=-20,
             )
@@ -127,7 +126,6 @@ class Board:
                                     break
                             new_move = Move(
                                 board=self,
-                                piece=piece,
                                 from_x=piece.x,
                                 from_y=piece.y,
                                 to_x=x,

@@ -64,8 +64,8 @@ class MaximumWeight(BaseStrategy):
         return best_move['move']
 
     def weight_move(self, board: Board, color: str, move: Move) -> int:
-        w = move.piece.points
-        if isinstance(move.piece, pieces.Pawn):
+        w = move.get_piece().points
+        if isinstance(move.get_piece(), pieces.Pawn):
             w += CENTRAL_POSITION_BONUS / (1 + abs(randint(6, 9) - move.from_x))
             if color == 'white' and isinstance(board.current[WHITE_PROMOTE][move.to_x], pieces.Blank):
                 w += PROMOTE_BONUS / (1 + abs(WHITE_PROMOTE - move.to_y))
@@ -78,7 +78,7 @@ class MaximumWeight(BaseStrategy):
 
 class OnlyPawnsAndQueensByWeight(MaximumWeight):
     def weight_move(self, board: Board, color: str, move: Move) -> int:
-        if type(move.piece) not in [pieces.Pawn, pieces.Queen]:
+        if type(move.get_piece()) not in [pieces.Pawn, pieces.Queen]:
             return -1
         else:
             return super(OnlyPawnsAndQueensByWeight, self).weight_move(board, color, move)
