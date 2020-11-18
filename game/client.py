@@ -24,20 +24,6 @@ class GameClient:
 
     def __init__(self, config: dict):
         self.config = config.copy()
-        self.game_results = {
-            'victories': {
-                'count': 0,
-                'points': [],
-            },
-            'defeats': {
-                'count': 0,
-                'points': [],
-            },
-            'ties': {
-                'count': 0,
-                'points': [],
-            }
-        }
         self.user_list = []
         self.game_list = {}
         self.cli_commands = queue.Queue()
@@ -46,6 +32,7 @@ class GameClient:
     async def main(self):
         print(f'Connecting to websocket server: {self.config.get("websocket_uri").format("xxxxx")}')
         self.server = ServerWebsocketAdap(self.config.get('websocket_uri').format(self.config.get('auth_token')))
+        await self.saved_data.init_db()
         await self.server.exec_with_context(self.run)
 
     async def cli_listener(self):
@@ -124,7 +111,7 @@ class GameClient:
                         color = game_instance.color
                         opponent = game_instance.opponent
                         game_instance.end = datetime.now()
-                        self.saved_data.store_match(game_instance, white_score, black_score)
+                        asyncio.create_task(self.saved_data.store_match(game_instance, white_score, black_score))
                     else:
                         if response['data']['white_username'] == self.config.get('username', ''):
                             color = 'white'
@@ -195,3 +182,4 @@ class GameClient:
             except Exception as e:
                 print(f'Error: {e}')
                 print('Attempting reconnection...')
+                # raise

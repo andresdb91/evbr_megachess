@@ -11,6 +11,7 @@ class GameInstance:
 
     config = {}
     board_id: str
+    player: str
     opponent: str
     color: str
     strategy: BaseStrategy
