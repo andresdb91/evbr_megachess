@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 
 from game.instance import GameInstance
 from server_websocket import ServerWebsocketAdap
+from db_adap import SavedData
 
 OLD_GAMES_CHECK_TIME = 20
 GAME_TIMEOUT = 15
@@ -18,6 +19,7 @@ class GameClient:
     game_results: dict
     user_list: [str]
     server: ServerWebsocketAdap
+    saved_data: SavedData
     cli_commands: queue.Queue
 
     def __init__(self, config: dict):
@@ -39,7 +41,7 @@ class GameClient:
         self.user_list = []
         self.game_list = {}
         self.cli_commands = queue.Queue()
-        self.execute = True
+        self.saved_data = SavedData()
 
     async def main(self):
         print(f'Connecting to websocket server: {self.config.get("websocket_uri").format("xxxxx")}')
@@ -120,6 +122,8 @@ class GameClient:
                     black_score = int(response['data']['black_score'])
                     if game_instance:
                         color = game_instance.color
+                        game_instance.end = datetime.now()
+                        self.saved_data.store_match(game_instance, white_score, black_score)
                     else:
                         if response['data']['white_username'] == self.config.get('username', ''):
                             color = 'white'
@@ -132,21 +136,13 @@ class GameClient:
                         if white_score > black_score:
                             if color == 'white':
                                 print(f'Victory as white: {white_score} to {black_score} points')
-                                self.game_results['victories']['count'] += 1
-                                self.game_results['victories']['points'].append((white_score, black_score))
                             else:
                                 print(f'Defeat as white: {black_score} to {white_score} points')
-                                self.game_results['defeats']['count'] += 1
-                                self.game_results['defeats']['points'].append((white_score, black_score))
                         elif black_score > white_score:
                             if color == 'black':
                                 print(f'Victory as black: {black_score} to {white_score} points')
-                                self.game_results['victories']['count'] += 1
-                                self.game_results['victories']['points'].append((black_score, white_score))
                             else:
                                 print(f'Defeat as black: {white_score} to {black_score} points')
-                                self.game_results['defeats']['count'] += 1
-                                self.game_results['defeats']['points'].append((black_score, white_score))
                         else:
                             print(f'Tie: {white_score} points')
                             self.game_results['ties']['count'] += 1
@@ -181,7 +177,6 @@ class GameClient:
                             config=self.config,
                             board_id=response['data']['board_id'],
                             opponent=response['data']['opponent_username'],
-                            move_left=response['data']['move_left'],
                             color=response['data']['actual_turn'],
                             board=response['data']['board'],
                         )
@@ -196,6 +191,3 @@ class GameClient:
             except Exception as e:
                 print(f'Error: {e}')
                 print('Attempting reconnection...')
-                # DEBUG
-                raise
-                # return
