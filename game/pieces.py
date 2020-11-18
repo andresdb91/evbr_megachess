@@ -255,5 +255,5 @@ class King(Piece):
 
 
 class Blank(Piece):
-    def __init__(self, x, y):
-        super(Blank, self).__init__('', x, y, 0)
+    def __init__(self, x, y, color=''):
+        super(Blank, self).__init__(color, x, y, 0)

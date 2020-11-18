@@ -59,7 +59,7 @@ class Board:
                 char_board.append(char_piece)
         return char_board
 
-    def update(self, board: str):
+    def update(self, board: str, color: str) -> Move:
         old_board = self.to_char_array()
         new_board = list(board)
 
@@ -76,13 +76,38 @@ class Board:
                 else:
                     print('Board desync, rebuilding')
                     self.current = Board.build_board(board)
-                    return
+                    return Move()
 
         if all([orig, dest]):
             piece = self.current[orig[1]][orig[0]]
             self.current[orig[1]][orig[0]] = Blank(orig[0], orig[1])
+            square = self.current[dest[1]][dest[0]]
             self.current[dest[1]][dest[0]] = piece
             self.move(piece, dest[0], dest[1])
+
+            points = piece.points
+            if isinstance(piece, Pawn):
+                if ((piece.color == 'white' and dest[1] == WHITE_PROMOTE)
+                        or (piece.color == 'black' and dest[1] == BLACK_PROMOTE)):
+                    points += 500
+            if not isinstance(square, Blank):
+                points += square.points * 10
+
+            return Move(
+                orig[0],
+                orig[1],
+                dest[0],
+                dest[1],
+                piece,
+                self,
+                points
+            )
+        else:
+            return Move(
+                piece=Blank(0, 0, color),
+                board=self,
+                points=-20,
+            )
 
     def get_moves(self, color: str) -> list[Move]:
         moves = []
@@ -100,7 +125,7 @@ class Board:
                                     break
                                 elif piece.x != x and (isinstance(square, Blank) or square.color == color):
                                     break
-                            moves.append(Move(
+                            new_move = Move(
                                 board=self,
                                 piece=piece,
                                 from_x=piece.x,
@@ -108,8 +133,14 @@ class Board:
                                 to_x=x,
                                 to_y=y,
                                 points=piece.points
-                            ))
+                            )
+                            moves.append(new_move)
+                            if isinstance(piece, Pawn):
+                                if ((piece.color == 'white' and y == WHITE_PROMOTE)
+                                        or (piece.color == 'black' and y == BLACK_PROMOTE)):
+                                    new_move.points += 500
                             if not isinstance(square, Blank):
+                                new_move.points += square.points * 10
                                 break
         return moves
 

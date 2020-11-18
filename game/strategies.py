@@ -2,11 +2,8 @@ from random import randint
 from random import shuffle
 from game import pieces
 
-from game.board import Board
+from game.board import Board, WHITE_PROMOTE, BLACK_PROMOTE
 from game.move import Move
-
-WHITE_PROMOTE = 8
-BLACK_PROMOTE = 7
 
 PROMOTE_BONUS = 500
 CENTRAL_POSITION_BONUS = 50
@@ -67,7 +64,7 @@ class MaximumWeight(BaseStrategy):
         return best_move['move']
 
     def weight_move(self, board: Board, color: str, move: Move) -> int:
-        w = move.points
+        w = move.piece.points
         if isinstance(move.piece, pieces.Pawn):
             w += CENTRAL_POSITION_BONUS / (1 + abs(randint(6, 9) - move.from_x))
             if color == 'white' and isinstance(board.current[WHITE_PROMOTE][move.to_x], pieces.Blank):
