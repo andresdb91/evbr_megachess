@@ -82,7 +82,7 @@ class SavedData:
         match_id = self.next_match_id
 
         c = self.connection.cursor()
-        c.execute(self.match_check_query, match.board_id)
+        c.execute(self.match_check_query, (match.board_id,))
         if c.fetchone():
             print(f'Duplicate match: {match.board_id}')
             return
