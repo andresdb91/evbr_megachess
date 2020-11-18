@@ -122,14 +122,18 @@ class GameClient:
                     black_score = int(response['data']['black_score'])
                     if game_instance:
                         color = game_instance.color
+                        opponent = game_instance.opponent
                         game_instance.end = datetime.now()
                         self.saved_data.store_match(game_instance, white_score, black_score)
                     else:
                         if response['data']['white_username'] == self.config.get('username', ''):
                             color = 'white'
+                            opponent = response['data']['black_username']
                         else:
                             color = 'black'
+                            opponent = response['data']['white_username']
                     print(f'Game results for board: {response["data"]["board_id"]}')
+                    print(f'Opponent: {opponent}')
                     if response['data']['white_username'] == response['data']['black_username']:
                         print(f'Self-challenge: w -> {white_score} | b -> {black_score}')
                     else:
@@ -137,12 +141,12 @@ class GameClient:
                             if color == 'white':
                                 print(f'Victory as white: {white_score} to {black_score} points')
                             else:
-                                print(f'Defeat as white: {black_score} to {white_score} points')
+                                print(f'Defeat as black: {black_score} to {white_score} points')
                         elif black_score > white_score:
                             if color == 'black':
                                 print(f'Victory as black: {black_score} to {white_score} points')
                             else:
-                                print(f'Defeat as black: {white_score} to {black_score} points')
+                                print(f'Defeat as white: {white_score} to {black_score} points')
                         else:
                             print(f'Tie: {white_score} points')
                             self.game_results['ties']['count'] += 1
