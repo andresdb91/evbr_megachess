@@ -1,5 +1,6 @@
 import websockets
 import json
+import asyncio
 
 
 class ServerWebsocketAdap:
@@ -18,7 +19,8 @@ class ServerWebsocketAdap:
                     await callback()
             except Exception as e:
                 print(f'Error: {e}')
-                raise
+                await asyncio.sleep(3)
+                # raise
 
     async def recv(self) -> dict:
         response = await self.websocket.recv()
