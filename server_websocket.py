@@ -19,6 +19,7 @@ class ServerWebsocketAdap:
                     await callback()
             except Exception as e:
                 print(f'Error: {e}')
+                print('Waiting 3 seconds before reconnecting...')
                 await asyncio.sleep(3)
                 # raise
 

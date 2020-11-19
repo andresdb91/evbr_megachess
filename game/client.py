@@ -191,5 +191,5 @@ class GameClient:
                         new_instance.last_move = datetime.now()
             except Exception as e:
                 print(f'Error: {e}')
-                print('Attempting reconnection...')
-                # raise
+                if self.config.get('debug', False):
+                    raise
