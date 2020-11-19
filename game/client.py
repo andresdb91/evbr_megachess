@@ -147,7 +147,7 @@ class GameClient:
                             or selfchallenge)\
                             and len(self.game_list) < self.config.get('max_games', 1):
                         game_count = 0
-                        for game in self.game_list:
+                        for game in self.game_list.values():
                             if game.opponent == response["data"]["username"]:
                                 game_count += 1
                         if not selfchallenge or game_count <= self.config.get('max_games_per_user', 1):
@@ -185,7 +185,9 @@ class GameClient:
                             server=self.server,
                             color=response['data']['actual_turn'],
                         )
-                        print(f'New game - id: {new_instance.board_id} - color: {new_instance.color}')
+                        print(f'New game - id: {new_instance.board_id} '
+                              f'- color: {new_instance.color} '
+                              f'- opponent: {new_instance.opponent}')
                         new_instance.last_move = datetime.now()
             except Exception as e:
                 print(f'Error: {e}')
