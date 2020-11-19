@@ -100,11 +100,13 @@ class Board:
                 dest[0],
                 dest[1],
                 self,
-                points
+                color,
+                points,
             )
         else:
             return Move(
                 board=self,
+                color=color,
                 points=-20,
             )
 
@@ -130,7 +132,8 @@ class Board:
                                 from_y=piece.y,
                                 to_x=x,
                                 to_y=y,
-                                points=piece.points
+                                color=color,
+                                points=piece.points,
                             )
                             moves.append(new_move)
                             if isinstance(piece, Pawn):

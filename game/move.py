@@ -5,6 +5,7 @@ class Move:
     to_y: int
     # piece: 'Piece'
     board: 'Board'
+    color: str
     points: int
 
     def __init__(
@@ -15,6 +16,7 @@ class Move:
             to_y: int = 0,
             # piece: 'Piece' = None,
             board: 'Board' = None,
+            color: str = '',
             points: int = 0,
     ):
         self.from_x = from_x
@@ -23,6 +25,7 @@ class Move:
         self.to_y = to_y
         # self.piece = piece
         self.board = board
+        self.color = color
         self.points = points
 
     def execute(self, board=None):
@@ -34,5 +37,5 @@ class Move:
     def to_coords(self) -> tuple[int, int, int, int]:
         return self.from_x, self.from_y, self.to_x, self.to_y
 
-    def get_piece(self):
+    def get_piece(self) -> 'Piece':
         return self.board.current[self.from_y][self.from_x]

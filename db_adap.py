@@ -102,7 +102,7 @@ class SavedData:
         move_params = [
             (
                 i,
-                moves[i].get_piece().color,
+                moves[i].color,
                 moves[i].points > 0,
                 moves[i].from_x,
                 moves[i].from_y,
