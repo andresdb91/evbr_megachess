@@ -4,6 +4,7 @@ from random import randint
 
 from datetime import datetime, timedelta
 
+from config_manager import ConfigManager
 from game.instance import GameInstance
 from server_websocket import ServerWebsocketAdap
 from db_adap import SavedData
@@ -14,7 +15,6 @@ GAME_TIMEOUT = 15
 
 class GameClient:
 
-    config: dict
     game_list: dict[GameInstance]
     game_results: dict
     user_list: [str]
@@ -22,16 +22,15 @@ class GameClient:
     saved_data: SavedData
     cli_commands: queue.Queue
 
-    def __init__(self, config: dict):
-        self.config = config.copy()
+    def __init__(self):
         self.user_list = []
         self.game_list = {}
         self.cli_commands = queue.Queue()
         self.saved_data = SavedData()
 
     async def main(self):
-        print(f'Connecting to websocket server: {self.config.get("websocket_uri").format("xxxxx")}')
-        self.server = ServerWebsocketAdap(self.config.get('websocket_uri').format(self.config.get('auth_token')))
+        print(f'Connecting to websocket server: {ConfigManager.get("websocket_uri").format("xxxxx")}')
+        self.server = ServerWebsocketAdap(ConfigManager.get('websocket_uri').format(ConfigManager.get('auth_token')))
         await self.saved_data.init_db()
         await self.server.exec_with_context(self.run)
 
@@ -65,9 +64,9 @@ class GameClient:
                     )
                 elif len(command) == 2 and command[0] == 'auto-accept':
                     if command[1] == 'on':
-                        self.config['accept_challenges'] = True
+                        ConfigManager.set('accept_challenges', True)
                     elif command[1] == 'off':
-                        self.config['accept_challenges'] = False
+                        ConfigManager.set('accept_challenges', False)
                 elif command[0] == 'quit':
                     asyncio.get_event_loop().stop()
                 elif command[0] == 'config' and len(command) == 3:
@@ -78,7 +77,7 @@ class GameClient:
                         value = True
                     elif value.lower() in ['false', 'off']:
                         value = False
-                    self.config[command[1]] = value
+                    ConfigManager.set(command[1], value)
             except queue.Empty:
                 await asyncio.sleep(0.5)
 
@@ -113,7 +112,7 @@ class GameClient:
                         game_instance.end = datetime.now()
                         asyncio.create_task(self.saved_data.store_match(game_instance, white_score, black_score))
                     else:
-                        if response['data']['white_username'] == self.config.get('username', ''):
+                        if response['data']['white_username'] == ConfigManager.get('username', ''):
                             color = 'white'
                             opponent = response['data']['black_username']
                         else:
@@ -139,18 +138,18 @@ class GameClient:
                             self.game_results['ties']['count'] += 1
                             self.game_results['ties']['points'].append(white_score)
                 elif response['event'] == 'ask_challenge':
-                    if selfchallenge := response['data']['username'] == self.config['username']:
+                    if selfchallenge := response['data']['username'] == ConfigManager.get('username'):
                         print('Self-challenge requested')
                     else:
                         print(f'Challenger: {response["data"]["username"]}')
-                    if (self.config.get('accept_challenges')
+                    if (ConfigManager.get('accept_challenges')
                             or selfchallenge)\
-                            and len(self.game_list) < self.config.get('max_games', 1):
+                            and len(self.game_list) < ConfigManager.get('max_games', 1):
                         game_count = 0
                         for game in self.game_list.values():
                             if game.opponent == response["data"]["username"]:
                                 game_count += 1
-                        if not selfchallenge or game_count <= self.config.get('max_games_per_user', 1):
+                        if not selfchallenge or game_count <= ConfigManager.get('max_games_per_user', 1):
                             await self.server.send(
                                 action='accept_challenge',
                                 data={'board_id': response['data']['board_id']}
@@ -173,7 +172,6 @@ class GameClient:
                         game_instance.last_move = datetime.now()
                     else:
                         new_instance = GameInstance(
-                            config=self.config,
                             board_id=response['data']['board_id'],
                             opponent=response['data']['opponent_username'],
                             color=response['data']['actual_turn'],
@@ -191,5 +189,5 @@ class GameClient:
                         new_instance.last_move = datetime.now()
             except Exception as e:
                 print(f'Error: {e}')
-                if self.config.get('debug', False):
+                if ConfigManager.get('debug', False):
                     raise

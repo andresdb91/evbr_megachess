@@ -1,6 +1,7 @@
 import websockets
 import json
 import asyncio
+from config_manager import ConfigManager
 
 
 class ServerWebsocketAdap:
@@ -21,7 +22,8 @@ class ServerWebsocketAdap:
                 print(f'Error: {e}')
                 print('Waiting 3 seconds before reconnecting...')
                 await asyncio.sleep(3)
-                # raise
+                if ConfigManager.get('debug'):
+                    raise
 
     async def recv(self) -> dict:
         response = await self.websocket.recv()

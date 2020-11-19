@@ -5,6 +5,7 @@ import threading
 from config.default import config
 import instance.config
 
+from config_manager import ConfigManager
 from game.client import GameClient
 from ui import UI
 
@@ -31,8 +32,11 @@ if __name__ == '__main__':
         print('Command line interface enabled')
         config['interface'] = True
 
+    # Create configuration manager instance
+    cfg_manager = ConfigManager(config)
+
     # Create game instance
-    game = GameClient(config)
+    game = GameClient()
 
     # Start cli interface
     if config.get('interface'):

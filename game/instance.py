@@ -2,14 +2,13 @@ from game.strategies import BaseStrategy
 from game.strategies_fact import AIStrategyFactory
 from game.board import Board
 from game.move import Move
-
+from config_manager import ConfigManager
 from datetime import datetime
 from server_websocket import ServerWebsocketAdap
 
 
 class GameInstance:
 
-    config = {}
     board_id: str
     player: str
     opponent: str
@@ -25,18 +24,16 @@ class GameInstance:
 
     def __init__(
             self,
-            config: dict,
             board_id: str,
             opponent: str,
             color: str,
             board: str
     ):
-        self.config = config.copy()
-        self.player = self.config.get('username', '')
+        self.player = ConfigManager.get('username', '')
         self.board_id = board_id
         self.opponent = opponent
         self.color = color
-        self.strategy = AIStrategyFactory.get_strategy(self.config.get('ai_strategy', 'random_legal'))
+        self.strategy = AIStrategyFactory.get_strategy(ConfigManager.get('ai_strategy', 'random_legal'))
         self.board = Board(board)
         self.start = datetime.now()
         self.save_history = True
