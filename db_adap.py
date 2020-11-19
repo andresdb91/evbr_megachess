@@ -15,7 +15,7 @@ class SavedData:
     move_insert_query = f"INSERT INTO {MOVE_TABLE} VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 
     async def init_db(self):
-        self.conn = await aiosqlite.connect('megachess.db', isolation_level=None)
+        self.conn = await aiosqlite.connect('db/megachess.db', isolation_level=None)
         try:
             await self.conn.execute(
                 f'CREATE TABLE {MATCH_TABLE} ('
