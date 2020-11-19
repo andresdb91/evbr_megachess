@@ -1,6 +1,7 @@
 from random import randint
 from random import shuffle
 from game import pieces
+from copy import deepcopy
 
 from game.board import Board, WHITE_PROMOTE, BLACK_PROMOTE
 from game.move import Move
@@ -82,3 +83,63 @@ class OnlyPawnsAndQueensByWeight(MaximumWeight):
             return -1
         else:
             return super(OnlyPawnsAndQueensByWeight, self).weight_move(board, color, move)
+
+
+class TwoMoveWeighting(MaximumWeight):
+    def play(self, instance: 'GameInstance', board: Board, color: str) -> Move:
+        move_limit = 16
+        opponent_color = 'white' if color != 'white' else 'black'
+
+        # Weight own moves
+        moves = board.get_moves(color)
+        if len(moves) == 0:
+            raise SystemError()
+        shuffle(moves)
+        best_move = {
+            'move': Move(),
+            'weight': -1000,
+        }
+
+        ranked_moves = []
+        for m in moves:
+            # Weight move
+            w = self.weight_move(board, color, m)
+
+            # Calculate movement influence area
+            move_influence = [(m.from_x, m.from_y), (m.to_x, m.to_y)]
+
+            ranked_moves.append((m, w, move_influence))
+
+        ranked_moves.sort(key=lambda x: x[1], reverse=True)
+
+        for move, weight, influence in ranked_moves[:move_limit]:
+            # Apply on temporal board
+            temp_board = deepcopy(board)
+            move.execute(temp_board)
+
+            # Get opponent moves
+            opponent_moves = temp_board.get_moves(opponent_color)
+
+            # Pick best weighted response
+            best_opponent_move = {
+                'move': Move(),
+                'weight': -1000,
+            }
+            for om in opponent_moves:
+                if (om.to_x, om.to_y) not in influence:
+                    continue
+                ow = self.weight_move(temp_board, opponent_color, om)
+                if ow > best_opponent_move['weight']:
+                    best_opponent_move = {
+                        'move': om,
+                        'weight': ow,
+                    }
+
+            total_weight = weight - best_opponent_move['weight']
+            if total_weight > best_move['weight']:
+                best_move = {
+                    'move': move,
+                    'weight': total_weight,
+                }
+
+        return best_move['move']

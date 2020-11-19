@@ -6,6 +6,7 @@ class AIStrategyFactory:
 
     @staticmethod
     def get_strategy(name: str) -> game.strategies.BaseStrategy:
+        print(f'Using strategy: {name}')
         if name == 'random_legal':
             return game.strategies.RandomLegal()
         elif name == 'maximum_points_move':
@@ -14,5 +15,7 @@ class AIStrategyFactory:
             return game.strategies.MaximumWeight()
         elif name == 'pawns_and_queens':
             return game.strategies.OnlyPawnsAndQueensByWeight()
+        elif name == '2_move_weight':
+            return game.strategies.TwoMoveWeighting()
         else:
             return AIStrategyFactory.default_strategy()
