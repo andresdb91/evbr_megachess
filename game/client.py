@@ -15,7 +15,7 @@ GAME_TIMEOUT = 15
 class GameClient:
 
     config: dict
-    game_list: dict[str, GameInstance]
+    game_list: dict[GameInstance]
     game_results: dict
     user_list: [str]
     server: ServerWebsocketAdap
@@ -139,14 +139,22 @@ class GameClient:
                             self.game_results['ties']['count'] += 1
                             self.game_results['ties']['points'].append(white_score)
                 elif response['event'] == 'ask_challenge':
-                    print(f'Challenger: {response["data"]["username"]}')
+                    if selfchallenge := response['data']['username'] == self.config['username']:
+                        print('Self-challenge requested')
+                    else:
+                        print(f'Challenger: {response["data"]["username"]}')
                     if (self.config.get('accept_challenges')
-                            or response['data']['username'] == self.config['username'])\
+                            or selfchallenge)\
                             and len(self.game_list) < self.config.get('max_games', 1):
-                        await self.server.send(
-                            action='accept_challenge',
-                            data={'board_id': response['data']['board_id']}
-                        )
+                        game_count = 0
+                        for game in self.game_list:
+                            if game.opponent == response["data"]["username"]:
+                                game_count += 1
+                        if not selfchallenge or game_count <= self.config.get('max_games_per_user', 1):
+                            await self.server.send(
+                                action='accept_challenge',
+                                data={'board_id': response['data']['board_id']}
+                            )
                         print(f'Challenge accepted:\n'
                               f'Challenger: {response["data"]["username"]}\n'
                               f'Board ID: {response["data"]["board_id"]}')

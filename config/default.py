@@ -4,4 +4,5 @@ config = {
     'interface': True,
     'accept_challenges': True,
     'max_games': 5,
+    'max_games_per_user': 2,
 }
