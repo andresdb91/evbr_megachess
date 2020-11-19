@@ -45,13 +45,13 @@ class GameInstance:
     async def play(self, turn_token: str, server: ServerWebsocketAdap, color: str, board: str = None):
         if board and self.player != self.opponent:
             opponent_move = self.board.update(board, color)
-            opponent_move.execute()
+            if opponent_move.points != 0:
+                opponent_move.execute()
+            else:
+                self.save_history = False
+                self.move_history = []
             if self.save_history:
-                if opponent_move.points != 0:
-                    self.move_history.append(opponent_move)
-                else:
-                    self.save_history = False
-                    self.move_history = []
+                self.move_history.append(opponent_move)
 
         move = self.strategy.play(self, self.board, color)
         move.execute()

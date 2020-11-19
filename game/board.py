@@ -81,10 +81,10 @@ class Board:
 
         if all([orig, dest]):
             piece = self.current[orig[1]][orig[0]]
-            self.current[orig[1]][orig[0]] = Blank(orig[0], orig[1])
+            # self.current[orig[1]][orig[0]] = Blank(orig[0], orig[1])
             square = self.current[dest[1]][dest[0]]
-            self.current[dest[1]][dest[0]] = piece
-            self.move(orig[0], orig[1], dest[0], dest[1])
+            # self.current[dest[1]][dest[0]] = piece
+            # self.move(orig[0], orig[1], dest[0], dest[1])
 
             points = piece.points
             if isinstance(piece, Pawn):
