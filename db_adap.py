@@ -1,6 +1,7 @@
 import aiosqlite
 from game.instance import GameInstance
 from game.move import Move
+from datetime import date
 
 MATCH_TABLE = 'match'
 MOVE_TABLE = 'move'
@@ -15,7 +16,8 @@ class SavedData:
     move_insert_query = f"INSERT INTO {MOVE_TABLE} VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 
     async def init_db(self):
-        self.conn = await aiosqlite.connect('db/megachess.db', isolation_level=None)
+        self.conn = await aiosqlite.connect(f'db/megachess-{date.today().isoformat()}.db', isolation_level=None)
+        print(f'Opened database: db/megachess-{date.today().isoformat()}.db')
         try:
             await self.conn.execute(
                 f'CREATE TABLE {MATCH_TABLE} ('
