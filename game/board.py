@@ -45,20 +45,15 @@ class Board:
         # Promote pawns on 7(black)/8(white)
         if piece == Pawn:
             if y == WHITE_PROMOTE and color == 'white':
-                # piece = Queen('white', x, y)
-                self.current[y][x] = 'Q'
+                piece_char = 'Q'
             elif y == BLACK_PROMOTE and color == 'black':
-                # piece = Queen('black', x, y)
-                self.current[y][x] = 'q'
-        # else:
-            # piece.move(x, y)
-
+                piece_char = 'q'
         self.current[y][x] = piece_char
 
     def to_char_array(self) -> list[str]:
         char_board = []
         for row in self.current:
-            char_board.append(''.join(row))
+            char_board += row
             # for square in row:
             #     char_piece = self.piece_charmap_inv[square.__class__]
             #     if square.color == 'white':
@@ -115,9 +110,9 @@ class Board:
 
     def get_moves(self, color: str) -> list[Move]:
         moves = []
-        for board_y in range(0, len(self.current)):
+        for board_y, row in enumerate(self.current):
             row = self.current[board_y]
-            for board_x in range(0, 16):
+            for board_x, piece_char in enumerate(row):
                 piece_char = row[board_x]
                 # if not isinstance(piece, Blank) and piece.color == color:
                 if piece_char != ' ' and piece_char.isupper() if color == 'white' else piece_char.islower():
