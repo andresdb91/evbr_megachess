@@ -47,7 +47,6 @@ class MaximumWeight(BaseStrategy):
         moves = board.get_moves(color)
         if len(moves) == 0:
             raise SystemError()
-        shuffle(moves)
         m = moves.pop()
         best_move = {
             'move': m,
@@ -88,14 +87,12 @@ class OnlyPawnsAndQueensByWeight(MaximumWeight):
 
 class TwoMoveWeighting(MaximumWeight):
     def play(self, instance: 'GameInstance', board: Board, color: str) -> Move:
-        move_limit = 64
         opponent_color = 'white' if color != 'white' else 'black'
 
         # Weight own moves
         moves = board.get_moves(color)
         if len(moves) == 0:
             raise SystemError()
-        shuffle(moves)
         best_move = {
             'move': Move(),
             'weight': -1000,
@@ -113,7 +110,7 @@ class TwoMoveWeighting(MaximumWeight):
 
         ranked_moves.sort(key=lambda x: x[1], reverse=True)
 
-        for move, weight, influence in ranked_moves[:move_limit]:
+        for move, weight, influence in ranked_moves:
             # Apply on temporal board
             temp_board = deepcopy(board)
             move.execute(temp_board)
