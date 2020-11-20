@@ -120,7 +120,14 @@ class Board:
                     all_moves = piece.update_moves(board_x, board_y, color)
                     for move_group in all_moves:
                         for (x, y) in move_group:
-                            square = self.piece_charmap[self.current[y][x].lower()]
+                            try:
+                                square = self.piece_charmap[self.current[y][x].lower()]
+                            except Exception as e:
+                                print(e)
+                                print(piece_char)
+                                print(board_x, board_y)
+                                print(x, y)
+                                raise
                             square_color = 'white' if self.current[y][x].isupper() else 'black'
                             if not square == Blank and square_color == color:
                                 break
