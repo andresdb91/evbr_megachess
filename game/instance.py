@@ -29,11 +29,11 @@ class GameInstance:
             color: str,
             board: str
     ):
-        self.player = ConfigManager.get('username', '')
+        self.player = ConfigManager.get('username') or ''
         self.board_id = board_id
         self.opponent = opponent
         self.color = color
-        self.strategy = AIStrategyFactory.get_strategy(ConfigManager.get('ai_strategy', 'random_legal'))
+        self.strategy = AIStrategyFactory.get_strategy(ConfigManager.get('ai_strategy'))
         self.board = Board(board)
         self.start = datetime.now()
         self.save_history = True

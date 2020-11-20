@@ -2,6 +2,7 @@ import aiosqlite
 from game.instance import GameInstance
 from game.move import Move
 from datetime import date
+from config_manager import ConfigManager
 
 MATCH_TABLE = 'match'
 MOVE_TABLE = 'move'
@@ -56,10 +57,10 @@ class SavedData:
 
     async def store_match(self, match: GameInstance, score_white: int, score_black: int):
         if match.color == 'white':
-            white_username = match.config.get('username', '')
+            white_username = ConfigManager.get('username') or ''
             black_username = match.opponent
         else:
-            black_username = match.config.get('username', '')
+            black_username = ConfigManager.get('username') or ''
             white_username = match.opponent
 
         if white_username == black_username:

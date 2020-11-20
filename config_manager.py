@@ -17,7 +17,7 @@ class ConfigManager(metaclass=Singleton):
             self.config = config.copy()
 
     def _get(self, attr):
-        return self.config.get(attr)
+        return self.config.get(attr, None)
 
     @classmethod
     def get(cls, attr):

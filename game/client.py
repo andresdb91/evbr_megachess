@@ -112,7 +112,7 @@ class GameClient:
                         game_instance.end = datetime.now()
                         asyncio.create_task(self.saved_data.store_match(game_instance, white_score, black_score))
                     else:
-                        if response['data']['white_username'] == ConfigManager.get('username', ''):
+                        if response['data']['white_username'] == ConfigManager.get('username') or '':
                             color = 'white'
                             opponent = response['data']['black_username']
                         else:
@@ -144,12 +144,12 @@ class GameClient:
                         print(f'Challenger: {response["data"]["username"]}')
                     if (ConfigManager.get('accept_challenges')
                             or selfchallenge)\
-                            and len(self.game_list) < ConfigManager.get('max_games', 1):
+                            and len(self.game_list) < (ConfigManager.get('max_games') or 1):
                         game_count = 0
                         for game in self.game_list.values():
                             if game.opponent == response["data"]["username"]:
                                 game_count += 1
-                        if not selfchallenge or game_count <= ConfigManager.get('max_games_per_user', 1):
+                        if not selfchallenge or game_count <= (ConfigManager.get('max_games_per_user') or 1):
                             await self.server.send(
                                 action='accept_challenge',
                                 data={'board_id': response['data']['board_id']}
@@ -189,5 +189,5 @@ class GameClient:
                         new_instance.last_move = datetime.now()
             except Exception as e:
                 print(f'Error: {e}')
-                if ConfigManager.get('debug', False):
+                if ConfigManager.get('debug'):
                     raise
