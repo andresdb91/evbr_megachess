@@ -36,8 +36,9 @@ class SavedData:
         except aiosqlite.OperationalError:
             pass
         finally:
-            c = await self.conn.execute(f'select * from {MATCH_TABLE}')
-            self.next_match_id = c.lastrowid
+            cursor = await self.conn.execute(f'select * from {MATCH_TABLE}')
+            count = len(await cursor.fetchall())
+            self.next_match_id = count
 
         try:
             await self.conn.execute(
