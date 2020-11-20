@@ -17,5 +17,7 @@ class AIStrategyFactory:
             return game.strategies.OnlyPawnsAndQueensByWeight()
         elif name == '2_move_weight':
             return game.strategies.TwoMoveWeighting()
+        elif name == 'multi_move_weight':
+            return game.strategies.MultiMoveWeight()
         else:
             return AIStrategyFactory.default_strategy()

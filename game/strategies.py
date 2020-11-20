@@ -141,3 +141,53 @@ class TwoMoveWeighting(MaximumWeight):
                 }
 
         return best_move['move']
+
+
+class MultiMoveWeight(MaximumWeight):
+    def play(self, instance: 'GameInstance', board: Board, color: str) -> Move:
+        opponent_color = 'white' if color != 'white' else 'black'
+        max_iter = 2
+
+        board_list: list[tuple[Board, int, Move]] = [(board, 0, None)]
+        for it in range(0, max_iter):
+            next_board_list = []
+            for current_board, board_weight, original_move in board_list:
+                moves = current_board.get_moves(color)
+                ranked_moves = []
+                for m in moves:
+                    # Weight move
+                    w = board_weight + self.weight_move(board, color, m)
+                    # Calculate movement influence area
+                    move_influence = [(m.from_x, m.from_y), (m.to_x, m.to_y)]
+                    ranked_moves.append((m, w, move_influence))
+                ranked_moves.sort(key=lambda x: x[1], reverse=True)
+                cut_line = ranked_moves[0][1] - (ranked_moves[0][1] - ranked_moves[-1][1]) / 2
+                for move, weight, influence in ranked_moves:
+                    # Discard if under cutline
+                    if weight < cut_line:
+                        continue
+                    # Apply on temporal board
+                    temp_board = deepcopy(board)
+                    move.execute(temp_board)
+                    # Get opponent moves
+                    opponent_moves = temp_board.get_moves(opponent_color)
+                    # Pick best weighted response
+                    best_opponent_move = {
+                        'move': Move(),
+                        'weight': -1000,
+                    }
+                    for om in opponent_moves:
+                        if (om.to_x, om.to_y) not in influence:
+                            continue
+                        ow = self.weight_move(temp_board, opponent_color, om)
+                        if ow > best_opponent_move['weight']:
+                            best_opponent_move = {
+                                'move': om,
+                                'weight': ow,
+                            }
+                    best_opponent_move['move'].execute(temp_board)
+                    net_weight = weight - best_opponent_move['weight']
+                    next_board_list.append((temp_board, net_weight, original_move or move))
+            board_list = next_board_list
+
+        return sorted(board_list, key=lambda x: x[1], reverse=True)[0][2]
