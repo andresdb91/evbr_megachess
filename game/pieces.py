@@ -1,27 +1,27 @@
 class Piece:
-    color: str
-    x: int
-    y: int
+    # color: str
+    # x: int
+    # y: int
     points: int
-    moves: list[list[tuple[int, int]]] = None
+    # moves: list[list[tuple[int, int]]] = None
 
-    def __init__(self, color: str, x: int, y: int, points: int):
-        self.color = color
-        self.x = x
-        self.y = y
-        self.points = points
-        if self.moves is None:
-            self.moves = self.update_moves(self.x, self.y, self.color)
-        else:
-            self.moves = self.moves.copy()
+    # def __init__(self, color: str, x: int, y: int, points: int):
+    #     self.color = color
+        # self.x = x
+        # self.y = y
+        # self.points = points
+        # if self.moves is None:
+        #     self.moves = self.update_moves(self.x, self.y, self.color)
+        # else:
+        #     self.moves = self.moves.copy()
 
-    def move(self, x: int, y: int):
-        self.x = x
-        self.y = y
-        self.moves = self.update_moves(self.x, self.y, self.color)
+    # def move(self, x: int, y: int):
+    #     self.x = x
+    #     self.y = y
+    #     self.moves = self.update_moves(self.x, self.y, self.color)
 
-    def get_moves(self) -> list[list[tuple[int, int]]]:
-        return self.moves
+    # def get_moves(self) -> list[list[tuple[int, int]]]:
+    #     return self.moves
 
     @staticmethod
     def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
@@ -29,10 +29,10 @@ class Piece:
 
 
 class Pawn(Piece):
-    POINTS = 10
+    points = 10
 
-    def __init__(self, color: str, x: int, y: int):
-        super(Pawn, self).__init__(color, x, y, Pawn.POINTS)
+    # def __init__(self, color: str, x: int, y: int):
+    #     super(Pawn, self).__init__(color, x, y, Pawn.POINTS)
 
     @staticmethod
     def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
@@ -63,10 +63,10 @@ class Pawn(Piece):
 
 
 class Rook(Piece):
-    POINTS = 60
+    points = 60
 
-    def __init__(self, color: str, x: int, y: int):
-        super(Rook, self).__init__(color, x, y, Rook.POINTS)
+    # def __init__(self, color: str, x: int, y: int):
+    #     super(Rook, self).__init__(color, x, y, Rook.POINTS)
 
     @staticmethod
     def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
@@ -91,10 +91,10 @@ class Rook(Piece):
 
 
 class Knight(Piece):
-    POINTS = 30
+    points = 30
 
-    def __init__(self, color: str, x: int, y: int):
-        super(Knight, self).__init__(color, x, y, Knight.POINTS)
+    # def __init__(self, color: str, x: int, y: int):
+    #     super(Knight, self).__init__(color, x, y, Knight.POINTS)
 
     @staticmethod
     def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
@@ -134,10 +134,10 @@ class Knight(Piece):
 
 
 class Bishop(Piece):
-    POINTS = 40
+    points = 40
 
-    def __init__(self, color: str, x: int, y: int):
-        super(Bishop, self).__init__(color, x, y, Bishop.POINTS)
+    # def __init__(self, color: str, x: int, y: int):
+    #     super(Bishop, self).__init__(color, x, y, Bishop.POINTS)
 
     @staticmethod
     def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
@@ -168,10 +168,10 @@ class Bishop(Piece):
 
 
 class Queen(Piece):
-    POINTS = 70
+    points = 70
 
-    def __init__(self, color: str, x: int, y: int):
-        super(Queen, self).__init__(color, x, y, Queen.POINTS)
+    # def __init__(self, color: str, x: int, y: int):
+    #     super(Queen, self).__init__(color, x, y, Queen.POINTS)
 
     @staticmethod
     def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
@@ -212,10 +212,10 @@ class Queen(Piece):
 
 
 class King(Piece):
-    POINTS = 100
+    points = 100
 
-    def __init__(self, color: str, x: int, y: int):
-        super(King, self).__init__(color, x, y, King.POINTS)
+    # def __init__(self, color: str, x: int, y: int):
+    #     super(King, self).__init__(color, x, y, King.POINTS)
 
     @staticmethod
     def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
@@ -255,5 +255,7 @@ class King(Piece):
 
 
 class Blank(Piece):
-    def __init__(self, x, y, color=''):
-        super(Blank, self).__init__(color, x, y, 0)
+    points = 0
+
+    # def __init__(self, x, y, color=''):
+    #     super(Blank, self).__init__(color, x, y, 0)

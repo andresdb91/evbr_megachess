@@ -66,13 +66,14 @@ class MaximumWeight(BaseStrategy):
 
     def weight_move(self, board: Board, color: str, move: Move) -> int:
         w = move.get_piece().points
-        if isinstance(move.get_piece(), pieces.Pawn):
+        square = board.get_piece(move.to_x, move.to_y)
+        if move.get_piece() == pieces.Pawn:
             w += CENTRAL_POSITION_BONUS / (1 + abs(randint(6, 9) - move.from_x))
-            if color == 'white' and isinstance(board.current[WHITE_PROMOTE][move.to_x], pieces.Blank):
+            if color == 'white' and board.current[WHITE_PROMOTE][move.to_x] == pieces.Blank:
                 w += PROMOTE_BONUS / (1 + abs(WHITE_PROMOTE - move.to_y))
-            elif isinstance(board.current[BLACK_PROMOTE][move.to_x], pieces.Blank):
+            elif board.current[BLACK_PROMOTE][move.to_x] == pieces.Blank:
                 w += PROMOTE_BONUS / (1 + abs(BLACK_PROMOTE - move.to_y))
-        if not isinstance(square := board.current[move.to_y][move.to_x], pieces.Blank):
+        if square != pieces.Blank:
             w += square.points * 10
         return w
 
@@ -87,7 +88,7 @@ class OnlyPawnsAndQueensByWeight(MaximumWeight):
 
 class TwoMoveWeighting(MaximumWeight):
     def play(self, instance: 'GameInstance', board: Board, color: str) -> Move:
-        move_limit = 16
+        move_limit = 64
         opponent_color = 'white' if color != 'white' else 'black'
 
         # Weight own moves

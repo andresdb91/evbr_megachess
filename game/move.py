@@ -38,4 +38,4 @@ class Move:
         return self.from_x, self.from_y, self.to_x, self.to_y
 
     def get_piece(self) -> 'Piece':
-        return self.board.current[self.from_y][self.from_x]
+        return self.board.get_piece(self.from_x, self.from_y)
