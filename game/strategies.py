@@ -68,9 +68,9 @@ class MaximumWeight(BaseStrategy):
         square = board.get_piece(move.to_x, move.to_y)
         if move.get_piece() == pieces.Pawn:
             w += CENTRAL_POSITION_BONUS / (1 + abs(randint(6, 9) - move.from_x))
-            if color == 'white' and board.current[WHITE_PROMOTE][move.to_x] == pieces.Blank:
+            if color == 'white' and board.current[WHITE_PROMOTE][move.to_x] == ' ':
                 w += PROMOTE_BONUS / (1 + abs(WHITE_PROMOTE - move.to_y))
-            elif board.current[BLACK_PROMOTE][move.to_x] == pieces.Blank:
+            elif board.current[BLACK_PROMOTE][move.to_x] == ' ':
                 w += PROMOTE_BONUS / (1 + abs(BLACK_PROMOTE - move.to_y))
         if square != pieces.Blank:
             w += square.points * 10
