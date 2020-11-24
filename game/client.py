@@ -94,8 +94,8 @@ class GameClient:
             await asyncio.sleep(OLD_GAMES_CHECK_TIME)
 
     async def run(self):
-        listener = asyncio.create_task(self.cli_listener())
-        cleaner = asyncio.create_task(self.clean_game_list())
+        asyncio.create_task(self.cli_listener())
+        asyncio.create_task(self.clean_game_list())
         while True:
             try:
                 response = await self.server.recv()
@@ -163,12 +163,12 @@ class GameClient:
                               f'Board ID: {response["data"]["board_id"]}')
                 elif response['event'] == 'your_turn':
                     if game_instance := self.game_list.get(response['data']['board_id']):
-                        await game_instance.play(
+                        asyncio.create_task(game_instance.play(
                             turn_token=response['data']['turn_token'],
                             server=self.server,
                             board=response['data']['board'],
                             color=response['data']['actual_turn'],
-                        )
+                        ))
                         game_instance.last_move = datetime.now()
                     else:
                         new_instance = GameInstance(
@@ -178,11 +178,11 @@ class GameClient:
                             board=response['data']['board'],
                         )
                         self.game_list[response['data']['board_id']] = new_instance
-                        await new_instance.play(
+                        asyncio.create_task(new_instance.play(
                             turn_token=response['data']['turn_token'],
                             server=self.server,
                             color=response['data']['actual_turn'],
-                        )
+                        ))
                         print(f'New game - id: {new_instance.board_id} '
                               f'- color: {new_instance.color} '
                               f'- opponent: {new_instance.opponent}')
