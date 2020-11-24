@@ -1,41 +1,29 @@
+from game.move import Move
+
+
 class Piece:
-    # color: str
-    # x: int
-    # y: int
-    points: int
-    # moves: list[list[tuple[int, int]]] = None
+    points: int = -1
+    character: str = ''
 
-    # def __init__(self, color: str, x: int, y: int, points: int):
-    #     self.color = color
-        # self.x = x
-        # self.y = y
-        # self.points = points
-        # if self.moves is None:
-        #     self.moves = self.update_moves(self.x, self.y, self.color)
-        # else:
-        #     self.moves = self.moves.copy()
-
-    # def move(self, x: int, y: int):
-    #     self.x = x
-    #     self.y = y
-    #     self.moves = self.update_moves(self.x, self.y, self.color)
-
-    # def get_moves(self) -> list[list[tuple[int, int]]]:
-    #     return self.moves
-
-    @staticmethod
-    def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
+    @classmethod
+    def update_moves(cls, x: int, y: int, board: list[list[str]], color: str) -> list[Move]:
         return [[]]
+
+    @classmethod
+    def is_piece(cls, piece: str):
+        return piece.lower() == cls.character
+
+    @classmethod
+    def is_opponent(cls, piece: str, color: str):
+        return piece.isupper() if color == 'black' else piece.islower()
 
 
 class Pawn(Piece):
     points = 10
+    character = 'p'
 
-    # def __init__(self, color: str, x: int, y: int):
-    #     super(Pawn, self).__init__(color, x, y, Pawn.POINTS)
-
-    @staticmethod
-    def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
+    @classmethod
+    def update_moves(cls, x: int, y: int, board: list[list[str]], color: str) -> list[Move]:
         if color == 'white':
             y0 = [12, 13]
             direction = -1
@@ -43,219 +31,557 @@ class Pawn(Piece):
             y0 = [2, 3]
             direction = 1
 
-        move = [(x, y + direction)]
-        if y in y0:
-            move.append((x, y + 2 * direction))
+        moves = []
 
-        eat_left = []
-        if x > 0:
-            eat_left = [(x - 1, y + direction)]
+        if Blank.is_piece(board[y + direction][x]):
+            moves.append(Move(
+                x,
+                y,
+                x,
+                y + direction,
+                cls,
+                color,
+                cls.points,
+            ))
+            if y in y0 and Blank.is_piece(board[y + 2 * direction][x]):
+                moves.append(Move(
+                    x,
+                    y,
+                    x,
+                    y + 2 * direction,
+                    cls,
+                    color,
+                    cls.points,
+                ))
+        if cls.is_opponent(board[y + direction][x - 1], color):
+            if x > 0:
+                moves.append(Move(
+                    x,
+                    y,
+                    x - 1,
+                    y + direction,
+                    cls,
+                    color,
+                    cls.points,
+                ))
+            if x < 15:
+                moves.append(Move(
+                    x,
+                    y,
+                    x + 1,
+                    y + direction,
+                    cls,
+                    color,
+                    cls.points,
+                ))
 
-        eat_right = []
-        if x < 15:
-            eat_right = [(x + 1, y + direction)]
-
-        return [
-            move,
-            eat_left,
-            eat_right,
-        ]
+        return moves
 
 
 class Rook(Piece):
     points = 60
 
-    # def __init__(self, color: str, x: int, y: int):
-    #     super(Rook, self).__init__(color, x, y, Rook.POINTS)
+    @classmethod
+    def update_moves(cls, x: int, y: int, board: list[list[str]], color: str) -> list[Move]:
+        skip_l = False
+        skip_r = False
+        skip_t = False
+        skip_d = False
 
-    @staticmethod
-    def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
-        move = [
-            l := [],
-            t := [],
-            r := [],
-            d := [],
-        ]
-
+        moves = []
         for z in range(1, 16):
-            if x - z >= 0:
-                l.append((x - z, y))
-            if x + z <= 15:
-                r.append((x + z, y))
-            if y + z <= 15:
-                t.append((x, y + z))
-            if y - z >= 0:
-                d.append((x, y - z))
+            lcheck = x - z >= 0
+            rcheck = x + z <= 15
+            tcheck = y + z <= 15
+            dcheck = y - z >= 0
+            if lcheck and not skip_l:
+                piece = board[y][x - z]
+                if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                    moves.append(Move(
+                        x,
+                        y,
+                        x - z,
+                        y,
+                        cls,
+                        color,
+                        cls.points,
+                    ))
+                if not Blank.is_piece(piece):
+                    skip_l = True
+            if rcheck and not skip_r:
+                piece = board[y][x + z]
+                if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                    moves.append(Move(
+                        x,
+                        y,
+                        x + z,
+                        y,
+                        cls,
+                        color,
+                        cls.points,
+                    ))
+                if not Blank.is_piece(piece):
+                    skip_r = True
+            if tcheck and not skip_t:
+                piece = board[y + z][x]
+                if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                    moves.append(Move(
+                        x,
+                        y,
+                        x,
+                        y + z,
+                        cls,
+                        color,
+                        cls.points,
+                    ))
+                    if not Blank.is_piece(piece):
+                        skip_t = True
+            if dcheck and not skip_d:
+                piece = board[y - z][x]
+                if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                    moves.append(Move(
+                        x,
+                        y,
+                        x,
+                        y - z,
+                        cls,
+                        color,
+                        cls.points,
+                    ))
+                    if not Blank.is_piece(piece):
+                        skip_d = True
 
-        return move
+        return moves
 
 
 class Knight(Piece):
     points = 30
 
-    # def __init__(self, color: str, x: int, y: int):
-    #     super(Knight, self).__init__(color, x, y, Knight.POINTS)
-
-    @staticmethod
-    def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
-        move = [
-            tl := [],
-            tr := [],
-            rt := [],
-            rd := [],
-            dr := [],
-            dl := [],
-            ld := [],
-            lt := [],
-        ]
-
+    @classmethod
+    def update_moves(cls, x: int, y: int, board: list[list[str]], color: str) -> list[Move]:
+        moves = []
         if y + 2 <= 15:
-            if x - 1 >= 0:
-                tl.append((x - 1, y + 2))
-            if x + 1 <= 15:
-                tr.append((x + 1, y + 2))
+            piece = board[y + 2][x - 1]
+            if x - 1 >= 0 and (Blank.is_piece(piece) or Piece.is_opponent(piece, color)):
+                moves.append(Move(
+                    x,
+                    y,
+                    x - 1,
+                    y + 2,
+                    cls,
+                    color,
+                    cls.points,
+                ))
+            piece = board[y + 2][x + 1]
+            if x + 1 <= 15 and (Blank.is_piece(piece) or Piece.is_opponent(piece, color)):
+                moves.append(Move(
+                    x,
+                    y,
+                    x + 1,
+                    y + 2,
+                    cls,
+                    color,
+                    cls.points,
+                ))
         if y - 2 >= 0:
-            if x - 1 >= 0:
-                dl.append((x - 1, y - 2))
-            if x + 1 <= 15:
-                dr.append((x + 1, y - 2))
+            piece = board[y - 2][x - 1]
+            if x - 1 >= 0 and (Blank.is_piece(piece) or Piece.is_opponent(piece, color)):
+                moves.append(Move(
+                    x,
+                    y,
+                    x - 1,
+                    y - 2,
+                    cls,
+                    color,
+                    cls.points,
+                ))
+            piece = board[y - 2][x + 1]
+            if x + 1 <= 15 and (Blank.is_piece(piece) or Piece.is_opponent(piece, color)):
+                moves.append(Move(
+                    x,
+                    y,
+                    x + 1,
+                    y - 2,
+                    cls,
+                    color,
+                    cls.points,
+                ))
         if x + 2 <= 15:
-            if y - 1 >= 0:
-                rd.append((x + 2, y - 1))
-            if y + 1 <= 15:
-                rt.append((x + 2, y + 1))
+            piece = board[y - 1][x + 2]
+            if y - 1 >= 0 and (Blank.is_piece(piece) or Piece.is_opponent(piece, color)):
+                moves.append(Move(
+                    x,
+                    y,
+                    x + 2,
+                    y - 1,
+                    cls,
+                    color,
+                    cls.points,
+                ))
+            piece = board[y + 1][x + 2]
+            if y + 1 <= 15 and (Blank.is_piece(piece) or Piece.is_opponent(piece, color)):
+                moves.append(Move(
+                    x,
+                    y,
+                    x + 2,
+                    y + 1,
+                    cls,
+                    color,
+                    cls.points,
+                ))
         if x - 2 >= 0:
-            if y - 1 >= 0:
-                ld.append((x - 2, y - 1))
-            if y + 1 <= 15:
-                lt.append((x - 2, y + 1))
+            piece = board[y - 1][x - 2]
+            if y - 1 >= 0 and (Blank.is_piece(piece) or Piece.is_opponent(piece, color)):
+                moves.append(Move(
+                    x,
+                    y,
+                    x - 2,
+                    y - 1,
+                    cls,
+                    color,
+                    cls.points,
+                ))
+            piece = board[y + 1][x - 2]
+            if y + 1 <= 15 and (Blank.is_piece(piece) or Piece.is_opponent(piece, color)):
+                moves.append(Move(
+                    x,
+                    y,
+                    x - 2,
+                    y + 1,
+                    cls,
+                    color,
+                    cls.points,
+                ))
 
-        return move
+        return moves
 
 
 class Bishop(Piece):
     points = 40
 
-    # def __init__(self, color: str, x: int, y: int):
-    #     super(Bishop, self).__init__(color, x, y, Bishop.POINTS)
+    @classmethod
+    def update_moves(cls, x: int, y: int, board: list[list[str]], color: str) -> list[Move]:
+        skip_lt = False
+        skip_ld = False
+        skip_rt = False
+        skip_rd = False
 
-    @staticmethod
-    def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
-        move = [
-            lt := [],
-            rt := [],
-            rd := [],
-            ld := [],
-        ]
-
+        moves = []
         for z in range(1, 16):
             lcheck = x - z >= 0
             rcheck = x + z <= 15
             tcheck = y + z <= 15
             dcheck = y - z >= 0
             if lcheck:
-                if tcheck:
-                    lt.append((x - z, y + z))
-                if dcheck:
-                    ld.append((x - z, y - z))
+                if tcheck and not skip_lt:
+                    piece = board[y + z][x - z]
+                    if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                        moves.append(Move(
+                            x,
+                            y,
+                            x - z,
+                            y + z,
+                            cls,
+                            color,
+                            cls.points,
+                        ))
+                    if not Blank.is_piece(piece):
+                        skip_lt = True
+                if dcheck and not skip_ld:
+                    piece = board[y - z][x - z]
+                    if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                        moves.append(Move(
+                            x,
+                            y,
+                            x - z,
+                            y - z,
+                            cls,
+                            color,
+                            cls.points,
+                        ))
+                    if not Blank.is_piece(piece):
+                        skip_ld = True
             if rcheck:
-                if tcheck:
-                    rt.append((x + z, y + z))
-                if dcheck:
-                    rd.append((x + z, y - z))
+                if tcheck and not skip_rt:
+                    piece = board[y + z][x + z]
+                    if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                        moves.append(Move(
+                            x,
+                            y,
+                            x + z,
+                            y + z,
+                            cls,
+                            color,
+                            cls.points,
+                        ))
+                    if not Blank.is_piece(piece):
+                        skip_rt = True
+                if dcheck and not skip_rd:
+                    piece = board[y - z][x + z]
+                    if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                        moves.append(Move(
+                            x,
+                            y,
+                            x + z,
+                            y - z,
+                            cls,
+                            color,
+                            cls.points,
+                        ))
+                    if not Blank.is_piece(piece):
+                        skip_rd = True
 
-        return move
+        return moves
 
 
 class Queen(Piece):
     points = 70
 
-    # def __init__(self, color: str, x: int, y: int):
-    #     super(Queen, self).__init__(color, x, y, Queen.POINTS)
+    @classmethod
+    def update_moves(cls, x: int, y: int, board: list[list[str]], color: str) -> list[Move]:
+        skip_lt = False
+        skip_ld = False
+        skip_rt = False
+        skip_rd = False
+        skip_l = False
+        skip_r = False
+        skip_t = False
+        skip_d = False
 
-    @staticmethod
-    def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
-        move = [
-            l := [],
-            lt := [],
-            t := [],
-            rt := [],
-            r := [],
-            rd := [],
-            d := [],
-            ld := [],
-        ]
-
+        moves = []
         for z in range(1, 16):
             lcheck = x - z >= 0
             rcheck = x + z <= 15
             tcheck = y + z <= 15
             dcheck = y - z >= 0
             if lcheck:
-                l.append((x - z, y))
-                if tcheck:
-                    lt.append((x - z, y + z))
-                if dcheck:
-                    ld.append((x - z, y - z))
+                if not skip_l:
+                    piece = board[y][x - z]
+                    if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                        moves.append(Move(
+                            x,
+                            y,
+                            x - z,
+                            y,
+                            cls,
+                            color,
+                            cls.points,
+                        ))
+                    if not Blank.is_piece(piece):
+                        skip_l = True
+                if tcheck and not skip_lt:
+                    piece = board[y + z][x - z]
+                    if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                        moves.append(Move(
+                            x,
+                            y,
+                            x - z,
+                            y + z,
+                            cls,
+                            color,
+                            cls.points,
+                        ))
+                    if not Blank.is_piece(piece):
+                        skip_lt = True
+                if dcheck and not skip_ld:
+                    piece = board[y - z][x - z]
+                    if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                        moves.append(Move(
+                            x,
+                            y,
+                            x - z,
+                            y - z,
+                            cls,
+                            color,
+                            cls.points,
+                        ))
+                    if not Blank.is_piece(piece):
+                        skip_ld = True
             if rcheck:
-                r.append((x + z, y))
-                if tcheck:
-                    rt.append((x + z, y + z))
-                if dcheck:
-                    rd.append((x + z, y - z))
-            if tcheck:
-                t.append((x, y + z))
-            if dcheck:
-                d.append((x, y - z))
+                if not skip_r:
+                    piece = board[y][x + z]
+                    if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                        moves.append(Move(
+                            x,
+                            y,
+                            x + z,
+                            y,
+                            cls,
+                            color,
+                            cls.points,
+                        ))
+                    if not Blank.is_piece(piece):
+                        skip_r = True
+                if tcheck and not skip_rt:
+                    piece = board[y + z][x + z]
+                    if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                        moves.append(Move(
+                            x,
+                            y,
+                            x + z,
+                            y + z,
+                            cls,
+                            color,
+                            cls.points,
+                        ))
+                    if not Blank.is_piece(piece):
+                        skip_rt = True
+                if dcheck and not skip_rd:
+                    piece = board[y - z][x + z]
+                    if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                        moves.append(Move(
+                            x,
+                            y,
+                            x + z,
+                            y - z,
+                            cls,
+                            color,
+                            cls.points,
+                        ))
+                    if not Blank.is_piece(piece):
+                        skip_rd = True
+            if tcheck and not skip_t:
+                piece = board[y + z][x]
+                if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                    moves.append(Move(
+                        x,
+                        y,
+                        x,
+                        y + z,
+                        cls,
+                        color,
+                        cls.points,
+                    ))
+                    if not Blank.is_piece(piece):
+                        skip_t = True
+            if dcheck and not skip_d:
+                piece = board[y - z][x]
+                if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                    moves.append(Move(
+                        x,
+                        y,
+                        x,
+                        y - z,
+                        cls,
+                        color,
+                        cls.points,
+                    ))
+                    if not Blank.is_piece(piece):
+                        skip_d = True
 
-        return move
+        return moves
 
 
 class King(Piece):
     points = 100
 
-    # def __init__(self, color: str, x: int, y: int):
-    #     super(King, self).__init__(color, x, y, King.POINTS)
-
-    @staticmethod
-    def update_moves(x: int, y: int, color: str) -> list[list[tuple[int, int]]]:
-        move = [
-            l := [],
-            lt := [],
-            t := [],
-            rt := [],
-            r := [],
-            rd := [],
-            d := [],
-            ld := [],
-        ]
-
+    @classmethod
+    def update_moves(cls, x: int, y: int, board: list[list[str]], color: str) -> list[Move]:
+        moves = []
         lcheck = x - 1 >= 0
         rcheck = x + 1 <= 15
         tcheck = y + 1 <= 15
         dcheck = y - 1 >= 0
         if lcheck:
-            l.append((x - 1, y))
+            piece = board[y][x - 1]
+            if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                moves.append(Move(
+                    x,
+                    y,
+                    x - 1,
+                    y,
+                    cls,
+                    color,
+                    cls.points,
+                ))
             if tcheck:
-                lt.append((x - 1, y + 1))
+                piece = board[y + 1][x - 1]
+                if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                    moves.append(Move(
+                        x,
+                        y,
+                        x - 1,
+                        y + 1,
+                        cls,
+                        color,
+                        cls.points,
+                    ))
             if dcheck:
-                ld.append((x - 1, y - 1))
+                piece = board[y - 1][x - 1]
+                if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                    moves.append(Move(
+                        x,
+                        y,
+                        x - 1,
+                        y - 1,
+                        cls,
+                        color,
+                        cls.points,
+                    ))
         if rcheck:
-            r.append((x + 1, y))
+            piece = board[y][x + 1]
+            if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                moves.append(Move(
+                    x,
+                    y,
+                    x + 1,
+                    y,
+                    cls,
+                    color,
+                    cls.points,
+                ))
             if tcheck:
-                rt.append((x + 1, y + 1))
+                piece = board[y + 1][x + 1]
+                if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                    moves.append(Move(
+                        x,
+                        y,
+                        x + 1,
+                        y + 1,
+                        cls,
+                        color,
+                        cls.points,
+                    ))
             if dcheck:
-                rd.append((x + 1, y - 1))
+                piece = board[y - 1][x + 1]
+                if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                    moves.append(Move(
+                        x,
+                        y,
+                        x + 1,
+                        y - 1,
+                        cls,
+                        color,
+                        cls.points,
+                    ))
         if tcheck:
-            t.append((x, y + 1))
+            piece = board[y + 1][x]
+            if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                moves.append(Move(
+                    x,
+                    y,
+                    x,
+                    y + 1,
+                    cls,
+                    color,
+                    cls.points,
+                ))
         if dcheck:
-            d.append((x, y - 1))
+            piece = board[y - 1][x]
+            if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
+                moves.append(Move(
+                    x,
+                    y,
+                    x,
+                    y - 1,
+                    cls,
+                    color,
+                    cls.points,
+                ))
 
-        return move
+        return moves
 
 
 class Blank(Piece):
     points = 0
-
-    # def __init__(self, x, y, color=''):
-    #     super(Blank, self).__init__(color, x, y, 0)
+    character = ' '
