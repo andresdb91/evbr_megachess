@@ -169,11 +169,21 @@ class MultiMoveWeight(MaximumWeight):
         opponent_color = 'white' if color != 'white' else 'black'
         max_iter = 2
 
-        board_list: list[tuple[Board, int, Move]] = [(board, 0, None)]
+        # Copy once, then exec/undo
+        temp_board = deepcopy(board)
+
+        # Setup initial board with no base weight
+        # Move is set to [] to be populated on first iteration
+        board_list: list[tuple[Board, int, list[Move]]] = [(board, 0, [])]
+
         for it in range(0, max_iter):
+            # Hold board list for next iteration (breadth first search)
             next_board_list = []
-            for current_board, board_weight, original_move in board_list:
-                moves = current_board.get_moves(color)
+            for _, board_weight, prev_moves in board_list:
+                # Apply previous move chain
+                for pm in prev_moves:
+                    pm.execute(temp_board)
+                moves = temp_board.get_moves(color)
                 ranked_moves = []
                 for m in moves:
                     # Weight move
@@ -181,14 +191,16 @@ class MultiMoveWeight(MaximumWeight):
                     # Calculate movement influence area
                     move_influence = [(m.from_x, m.from_y), (m.to_x, m.to_y)]
                     ranked_moves.append((m, w, move_influence))
+
+                # Sort all moves by weight, best first
                 ranked_moves.sort(key=lambda x: x[1], reverse=True)
+                # Set a cutline to discard moves
                 cut_line = ranked_moves[0][1] - (ranked_moves[0][1] - ranked_moves[-1][1]) / 2
                 for move, weight, influence in ranked_moves:
                     # Discard if under cutline
                     if weight < cut_line:
                         continue
-                    # Apply on temporal board
-                    temp_board = deepcopy(board)
+                    # Apply new move on temporal board
                     move.execute(temp_board)
                     # Get opponent moves
                     opponent_moves = temp_board.get_moves(opponent_color)
@@ -206,9 +218,22 @@ class MultiMoveWeight(MaximumWeight):
                                 'move': om,
                                 'weight': ow,
                             }
-                    best_opponent_move['move'].execute(temp_board)
+                    # Calculate new board weight
                     net_weight = weight - best_opponent_move['weight']
-                    next_board_list.append((temp_board, net_weight, original_move or move))
+
+                    # Undo last move to restore temp board
+                    move.undo(temp_board)
+
+                    # Add move sequence to next iteration
+                    next_board_list.append((
+                        _,
+                        net_weight,
+                        prev_moves + [move, best_opponent_move['move']]
+                    ))
+                # Undo move sequence
+                for pm in reversed(prev_moves):
+                    pm.undo(temp_board)
             board_list = next_board_list
 
-        return sorted(board_list, key=lambda x: x[1], reverse=True)[0][2]
+        # Return first move from best chain
+        return sorted(board_list, key=lambda x: x[1], reverse=True)[0][2][0]

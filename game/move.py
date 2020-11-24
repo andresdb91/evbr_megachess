@@ -22,8 +22,11 @@ class Move:
         self.piece = piece
         self.color = color
 
-    def execute(self, board=None):
+    def execute(self, board):
         board.move(self.from_x, self.from_y, self.to_x, self.to_y)
+
+    def undo(self, board):
+        board.move(self.to_x, self.to_y, self.from_x, self.from_y)
 
     def to_coords(self) -> tuple[int, int, int, int]:
         return self.from_x, self.from_y, self.to_x, self.to_y
