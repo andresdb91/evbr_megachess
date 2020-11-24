@@ -105,7 +105,7 @@ class SavedData:
             (
                 i,
                 moves[i].color,
-                moves[i].points > 0,
+                moves[i].is_valid(),
                 moves[i].from_x,
                 moves[i].from_y,
                 moves[i].to_x,

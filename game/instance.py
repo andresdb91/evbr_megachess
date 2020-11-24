@@ -44,7 +44,7 @@ class GameInstance:
             opponent_color = 'white' if color != 'white' else 'black'
             opponent_move = self.board.update(board, opponent_color)
             if opponent_move.points != 0:
-                opponent_move.execute()
+                opponent_move.execute(self.board)
             else:
                 self.save_history = False
                 self.move_history = []
@@ -52,7 +52,7 @@ class GameInstance:
                 self.move_history.append(opponent_move)
 
         move = self.strategy.play(self, self.board, color)
-        move.execute()
+        move.execute(self.board)
         if self.save_history:
             self.move_history.append(move)
 

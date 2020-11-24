@@ -3,10 +3,8 @@ class Move:
     from_y: int
     to_x: int
     to_y: int
-    # piece: 'Piece'
-    board: 'Board'
+    piece: 'Piece'
     color: str
-    points: int
 
     def __init__(
             self,
@@ -14,28 +12,21 @@ class Move:
             from_y: int = 0,
             to_x: int = 0,
             to_y: int = 0,
-            # piece: 'Piece' = None,
-            board: 'Board' = None,
+            piece: 'Piece' = None,
             color: str = '',
-            points: int = 0,
     ):
         self.from_x = from_x
         self.from_y = from_y
         self.to_x = to_x
         self.to_y = to_y
-        # self.piece = piece
-        self.board = board
+        self.piece = piece
         self.color = color
-        self.points = points
 
     def execute(self, board=None):
-        if board:
-            board.move(self.from_x, self.from_y, self.to_x, self.to_y)
-        else:
-            self.board.move(self.from_x, self.from_y, self.to_x, self.to_y)
+        board.move(self.from_x, self.from_y, self.to_x, self.to_y)
 
     def to_coords(self) -> tuple[int, int, int, int]:
         return self.from_x, self.from_y, self.to_x, self.to_y
 
-    def get_piece(self) -> 'Piece':
-        return self.board.get_piece(self.from_x, self.from_y)
+    def is_valid(self) -> bool:
+        return (self.from_x, self.from_y) != (self.to_x, self.to_y)
