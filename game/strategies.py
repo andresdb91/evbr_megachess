@@ -167,7 +167,9 @@ class TwoMoveWeighting(MaximumWeight):
 class MultiMoveWeight(MaximumWeight):
     def play(self, instance: 'GameInstance', board: Board, color: str) -> Move:
         opponent_color = 'white' if color != 'white' else 'black'
-        max_iter = 2
+
+        # Set max amount of iterations
+        max_iter = 3
 
         # Copy once, then exec/undo
         temp_board = deepcopy(board)
