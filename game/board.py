@@ -121,6 +121,8 @@ class Board:
                     for move_group in all_moves:
                         for (x, y) in move_group:
                             try:
+                                if not (0 <= x <= 15) or not (0 <= y <= 15):
+                                    continue
                                 square = self.piece_charmap[self.current[y][x].lower()]
                             except Exception as e:
                                 print(e)
