@@ -1,6 +1,9 @@
 import websockets
 import json
 from config_manager import ConfigManager
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ServerWebsocketAdap:
@@ -16,17 +19,19 @@ class ServerWebsocketAdap:
         while True:
             try:
                 async with websockets.connect(self.uri) as self.websocket:
-                    print('Connected to websocket server')
+                    logger.info('Connected to websocket server')
                     await callback()
             except Exception as e:
                 print(f'Error: {e}')
+                logger.error(f'Error: {e}')
                 print('Reconnecting...')
+                logger.info('Reconnecting...')
                 if ConfigManager.get('debug'):
                     raise
 
     async def recv(self) -> dict:
         response = await self.websocket.recv()
-        print(f'Recv: {response}')
+        logger.debug(f'Recv: {response}')
         return json.loads(response)
 
     async def send(self, action: str, data: dict):
@@ -34,5 +39,5 @@ class ServerWebsocketAdap:
             'action': action,
             'data': data,
         })
-        print(f'Sent: {msg}')
+        logger.debug(f'Sent: {msg}')
         await self.websocket.send(msg)
