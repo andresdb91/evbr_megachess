@@ -8,6 +8,7 @@ from game.move import Move
 
 PROMOTE_BONUS = 500
 CENTRAL_POSITION_BONUS = 50
+DEFENSE_BONUS = 500
 CAPTURE_BONUS = {
     'p': 80,
     'r': 50,
@@ -96,6 +97,9 @@ class MaximumWeight(BaseStrategy):
                 w += PROMOTE_BONUS / (1 + abs(BLACK_PROMOTE - move.to_y))
         if square != pieces.Blank:
             w += square.points * 10 + CAPTURE_BONUS[square.character]
+            if (color == 'white' and move.to_y >= WHITE_PROMOTE)\
+                    or (color == 'black' and move.to_y <= BLACK_PROMOTE):
+                w += DEFENSE_BONUS
         return w
 
 
@@ -170,7 +174,7 @@ class MultiMoveWeight(MaximumWeight):
         opponent_color = 'white' if color != 'white' else 'black'
 
         # Set max amount of iterations
-        max_iter = 3
+        max_iter = 2
 
         # Copy once, then exec/undo
         temp_board = deepcopy(board)
