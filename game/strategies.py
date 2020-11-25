@@ -16,6 +16,7 @@ CAPTURE_BONUS = {
     'q': 100,
     'k': 60,
 }
+MIN_MOVES_BEFORE_CUTLINE = 100
 
 
 class BaseStrategy:
@@ -197,7 +198,11 @@ class MultiMoveWeight(MaximumWeight):
                 # Sort all moves by weight, best first
                 ranked_moves.sort(key=lambda x: x[1], reverse=True)
                 # Set a cutline to discard moves
-                cut_line = ranked_moves[0][1] - (ranked_moves[0][1] - ranked_moves[-1][1]) / 2
+                if len(moves) > MIN_MOVES_BEFORE_CUTLINE:
+                    cut_line = ranked_moves[0][1] - (ranked_moves[0][1] - ranked_moves[-1][1]) / 2
+                else:
+                    cut_line = -1000
+
                 for move, weight, influence in ranked_moves:
                     # Discard if under cutline
                     if weight < cut_line:
