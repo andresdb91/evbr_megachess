@@ -334,7 +334,7 @@ class Bishop(Piece):
 
 
 class Queen(Piece):
-    points = 70
+    points = 5
     character = 'q'
 
     @classmethod
