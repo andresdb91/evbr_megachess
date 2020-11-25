@@ -64,7 +64,7 @@ class Board:
                 else:
                     print('Board desync, rebuilding')
                     self.current = Board.build_board(board)
-                    return Move()
+                    raise Exception('Board desync detected')
 
         if all([orig, dest]):
             piece = self.piece_charmap[self.current[orig[1]][orig[0]].lower()]

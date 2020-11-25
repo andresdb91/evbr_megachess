@@ -42,14 +42,19 @@ class GameInstance:
     async def play(self, turn_token: str, server: ServerWebsocketAdap, color: str, board: str = None):
         if board and self.player != self.opponent:
             opponent_color = 'white' if color != 'white' else 'black'
-            opponent_move = self.board.update(board, opponent_color)
-            if opponent_move.points != 0:
-                opponent_move.execute(self.board)
+            try:
+                opponent_move = self.board.update(board, opponent_color)
+                if opponent_move.is_valid():
+                    opponent_move.execute(self.board)
+            except Exception as e:
+                if self.save_history:
+                    print(e)
+                    print('Disabling move history for this game')
+                    self.save_history = False
+                    self.move_history = []
             else:
-                self.save_history = False
-                self.move_history = []
-            if self.save_history:
-                self.move_history.append(opponent_move)
+                if self.save_history:
+                    self.move_history.append(opponent_move)
 
         move = self.strategy.play(self, self.board, color)
         move.execute(self.board)
