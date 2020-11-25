@@ -1,12 +1,12 @@
 import websockets
 import json
-import asyncio
 from config_manager import ConfigManager
 
 
 class ServerWebsocketAdap:
 
     websocket: websockets.WebSocketClientProtocol
+    exception = websockets.WebSocketException
 
     def __init__(self, uri: str):
         self.uri = uri
@@ -20,8 +20,7 @@ class ServerWebsocketAdap:
                     await callback()
             except Exception as e:
                 print(f'Error: {e}')
-                print('Waiting 3 seconds before reconnecting...')
-                await asyncio.sleep(3)
+                print('Reconnecting...')
                 if ConfigManager.get('debug'):
                     raise
 

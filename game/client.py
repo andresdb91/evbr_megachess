@@ -187,6 +187,8 @@ class GameClient:
                               f'- color: {new_instance.color} '
                               f'- opponent: {new_instance.opponent}')
                         new_instance.last_move = datetime.now()
+            except self.server.exception:
+                raise
             except Exception as e:
                 print(f'Error: {e}')
                 if ConfigManager.get('debug'):
