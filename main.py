@@ -1,6 +1,8 @@
 import asyncio
 import argparse
 import threading
+import logging
+import datetime
 
 from config.default import config
 import instance.config
@@ -26,14 +28,22 @@ if __name__ == '__main__':
 
     # Override stored configuration with parameters
     if cmd_args.token:
-        print('Using token from command line')
+        logger.info('Using token from command line')
         config['auth_token'] = cmd_args.token
     if cmd_args.interface:
-        print('Command line interface enabled')
+        logger.info('Command line interface enabled')
         config['interface'] = True
 
     # Create configuration manager instance
     cfg_manager = ConfigManager(config)
+
+    # Configure and start logging
+    logging.basicConfig(
+        filename=f'logs/{datetime.date.today().isoformat()}',
+        level=ConfigManager.get('log_level') or logging.WARNING,
+        format='[%(asctime)s] %(levelname)s (%(name)): %(message)s'
+    )
+    logger = logging.getLogger(__name__)
 
     # Create game instance
     game = GameClient()
@@ -41,12 +51,12 @@ if __name__ == '__main__':
     # Start cli interface
     if config.get('interface'):
         ui = UI(game)
-        print('Starting UI thread')
+        logger.info('Starting UI thread')
         T = threading.Thread(target=ui.cli, daemon=True)
         T.start()
 
     # Call event loop
-    print('Starting game loop')
+    logger.info('Starting game loop')
     try:
         asyncio.run(game.main())
     except RuntimeError:
