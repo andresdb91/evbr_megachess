@@ -101,7 +101,8 @@ class GameClient:
                 response = await self.server.recv()
                 if response['event'] == 'update_user_list':
                     if self.user_list != response['data']['users_list']:
-                        self.user_list = response['data']['users_list'].copy()
+                        self.user_list = response['data']['users_list']
+                    print(self.user_list)
                 elif response['event'] == 'gameover':
                     game_instance = self.game_list.pop(response['data']['board_id'], None)
                     white_score = int(response['data']['white_score'])
