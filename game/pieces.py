@@ -7,31 +7,50 @@ class Piece:
 
     @classmethod
     def update_moves(cls, x: int, y: int, board: list[list[str]], color: str) -> list[Move]:
-        return [[]]
+        return [Move()]
 
     @classmethod
     def is_piece(cls, piece: str):
         return piece.lower() == cls.character
 
     @classmethod
+    def is_piece_str(cls, piece_class: str):
+        return piece_charmap[piece_class].is_piece(cls.character)
+
+    @classmethod
     def is_opponent(cls, piece: str, color: str):
         return piece.isupper() if color == 'black' else piece.islower()
+
+    @classmethod
+    def get_piece(cls, char: str) -> tuple[type['Piece'], str]:
+        if char.isupper():
+            color = 'white'
+        elif char.islower():
+            color = 'black'
+        else:
+            color = ''
+        return piece_charmap[char.lower()], color
 
 
 class Pawn(Piece):
     points = 10
     character = 'p'
 
+    promote: int = 500
+
     @classmethod
     def update_moves(cls, x: int, y: int, board: list[list[str]], color: str) -> list[Move]:
         if color == 'white':
             y0 = [12, 13]
+            y1 = 8
             direction = -1
         else:
             y0 = [2, 3]
+            y1 = 7
             direction = 1
 
         moves = []
+        piece = None
 
         if Blank.is_piece(board[y + direction][x]):
             moves.append(Move(
@@ -40,8 +59,11 @@ class Pawn(Piece):
                 x,
                 y + direction,
                 cls,
+                cls.points,
                 color
             ))
+            if y + direction == y1:
+                moves[-1].points += cls.promote
             if y in y0 and Blank.is_piece(board[y + 2 * direction][x]):
                 moves.append(Move(
                     x,
@@ -49,27 +71,33 @@ class Pawn(Piece):
                     x,
                     y + 2 * direction,
                     cls,
+                    cls.points,
                     color,
                 ))
-        if cls.is_opponent(board[y + direction][x - 1], color):
-            if x > 0:
-                moves.append(Move(
-                    x,
-                    y,
-                    x - 1,
-                    y + direction,
-                    cls,
-                    color,
-                ))
-            if x < 15:
-                moves.append(Move(
-                    x,
-                    y,
-                    x + 1,
-                    y + direction,
-                    cls,
-                    color,
-                ))
+        if x > 0 and cls.is_opponent(piece := board[y + direction][x - 1], color):
+            moves.append(Move(
+                x,
+                y,
+                x - 1,
+                y + direction,
+                cls,
+                cls.points + cls.get_piece(piece)[0].points,
+                color,
+            ))
+            if y + direction == y1:
+                moves[-1].points += cls.promote
+        if x < 15 and cls.is_opponent(piece := board[y + direction][x + 1], color):
+            moves.append(Move(
+                x,
+                y,
+                x + 1,
+                y + direction,
+                cls,
+                cls.points + cls.get_piece(piece)[0].points,
+                color,
+            ))
+            if y + direction == y1:
+                moves[-1].points += cls.promote
 
         return moves
 
@@ -100,11 +128,14 @@ class Rook(Piece):
                         x - z,
                         y,
                         cls,
+                        cls.points,
                         color,
 
                     ))
                 if not Blank.is_piece(piece):
                     skip_l = True
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
             if rcheck and not skip_r:
                 piece = board[y][x + z]
                 if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -114,11 +145,14 @@ class Rook(Piece):
                         x + z,
                         y,
                         cls,
+                        cls.points,
                         color,
 
                     ))
                 if not Blank.is_piece(piece):
                     skip_r = True
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
             if tcheck and not skip_t:
                 piece = board[y + z][x]
                 if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -128,11 +162,14 @@ class Rook(Piece):
                         x,
                         y + z,
                         cls,
+                        cls.points,
                         color,
 
                     ))
                 if not Blank.is_piece(piece):
                     skip_t = True
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
             if dcheck and not skip_d:
                 piece = board[y - z][x]
                 if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -142,11 +179,14 @@ class Rook(Piece):
                         x,
                         y - z,
                         cls,
+                        cls.points,
                         color,
 
                     ))
                 if not Blank.is_piece(piece):
                     skip_d = True
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
 
         return moves
 
@@ -168,8 +208,11 @@ class Knight(Piece):
                         x - 1,
                         y + 2,
                         cls,
+                        cls.points,
                         color,
                     ))
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
             if x + 1 <= 15:
                 piece = board[y + 2][x + 1]
                 if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -179,8 +222,11 @@ class Knight(Piece):
                         x + 1,
                         y + 2,
                         cls,
+                        cls.points,
                         color,
                     ))
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
         if y - 2 >= 0:
             if x - 1 >= 0:
                 piece = board[y - 2][x - 1]
@@ -191,8 +237,11 @@ class Knight(Piece):
                         x - 1,
                         y - 2,
                         cls,
+                        cls.points,
                         color,
                     ))
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
             if x + 1 <= 15:
                 piece = board[y - 2][x + 1]
                 if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -202,8 +251,11 @@ class Knight(Piece):
                         x + 1,
                         y - 2,
                         cls,
+                        cls.points,
                         color,
                     ))
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
         if x + 2 <= 15:
             if y - 1 >= 0:
                 piece = board[y - 1][x + 2]
@@ -214,8 +266,11 @@ class Knight(Piece):
                         x + 2,
                         y - 1,
                         cls,
+                        cls.points,
                         color,
                     ))
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
             if y + 1 <= 15:
                 piece = board[y + 1][x + 2]
                 if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -225,8 +280,11 @@ class Knight(Piece):
                         x + 2,
                         y + 1,
                         cls,
+                        cls.points,
                         color,
                     ))
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
         if x - 2 >= 0:
             if y - 1 >= 0:
                 piece = board[y - 1][x - 2]
@@ -237,8 +295,11 @@ class Knight(Piece):
                         x - 2,
                         y - 1,
                         cls,
+                        cls.points,
                         color,
                     ))
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
             if y + 1 <= 15:
                 piece = board[y + 1][x - 2]
                 if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -248,8 +309,11 @@ class Knight(Piece):
                         x - 2,
                         y + 1,
                         cls,
+                        cls.points,
                         color,
                     ))
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
 
         return moves
 
@@ -281,11 +345,13 @@ class Bishop(Piece):
                             x - z,
                             y + z,
                             cls,
+                            cls.points,
                             color,
-
                         ))
                     if not Blank.is_piece(piece):
                         skip_lt = True
+                        if Piece.is_opponent(piece, color):
+                            moves[-1].points += cls.get_piece(piece)[0].points
                 if dcheck and not skip_ld:
                     piece = board[y - z][x - z]
                     if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -295,11 +361,13 @@ class Bishop(Piece):
                             x - z,
                             y - z,
                             cls,
+                            cls.points,
                             color,
-
                         ))
                     if not Blank.is_piece(piece):
                         skip_ld = True
+                        if Piece.is_opponent(piece, color):
+                            moves[-1].points += cls.get_piece(piece)[0].points
             if rcheck:
                 if tcheck and not skip_rt:
                     piece = board[y + z][x + z]
@@ -310,11 +378,13 @@ class Bishop(Piece):
                             x + z,
                             y + z,
                             cls,
+                            cls.points,
                             color,
-
                         ))
                     if not Blank.is_piece(piece):
                         skip_rt = True
+                        if Piece.is_opponent(piece, color):
+                            moves[-1].points += cls.get_piece(piece)[0].points
                 if dcheck and not skip_rd:
                     piece = board[y - z][x + z]
                     if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -324,11 +394,13 @@ class Bishop(Piece):
                             x + z,
                             y - z,
                             cls,
+                            cls.points,
                             color,
-
                         ))
                     if not Blank.is_piece(piece):
                         skip_rd = True
+                        if Piece.is_opponent(piece, color):
+                            moves[-1].points += cls.get_piece(piece)[0].points
 
         return moves
 
@@ -364,11 +436,13 @@ class Queen(Piece):
                             x - z,
                             y,
                             cls,
+                            cls.points,
                             color,
-
                         ))
                     if not Blank.is_piece(piece):
                         skip_l = True
+                        if Piece.is_opponent(piece, color):
+                            moves[-1].points += cls.get_piece(piece)[0].points
                 if tcheck and not skip_lt:
                     piece = board[y + z][x - z]
                     if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -378,11 +452,13 @@ class Queen(Piece):
                             x - z,
                             y + z,
                             cls,
+                            cls.points,
                             color,
-
                         ))
                     if not Blank.is_piece(piece):
                         skip_lt = True
+                        if Piece.is_opponent(piece, color):
+                            moves[-1].points += cls.get_piece(piece)[0].points
                 if dcheck and not skip_ld:
                     piece = board[y - z][x - z]
                     if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -392,11 +468,13 @@ class Queen(Piece):
                             x - z,
                             y - z,
                             cls,
+                            cls.points,
                             color,
-
                         ))
                     if not Blank.is_piece(piece):
                         skip_ld = True
+                        if Piece.is_opponent(piece, color):
+                            moves[-1].points += cls.get_piece(piece)[0].points
             if rcheck:
                 if not skip_r:
                     piece = board[y][x + z]
@@ -407,11 +485,13 @@ class Queen(Piece):
                             x + z,
                             y,
                             cls,
+                            cls.points,
                             color,
-
                         ))
                     if not Blank.is_piece(piece):
                         skip_r = True
+                        if Piece.is_opponent(piece, color):
+                            moves[-1].points += cls.get_piece(piece)[0].points
                 if tcheck and not skip_rt:
                     piece = board[y + z][x + z]
                     if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -421,11 +501,13 @@ class Queen(Piece):
                             x + z,
                             y + z,
                             cls,
+                            cls.points,
                             color,
-
                         ))
                     if not Blank.is_piece(piece):
                         skip_rt = True
+                        if Piece.is_opponent(piece, color):
+                            moves[-1].points += cls.get_piece(piece)[0].points
                 if dcheck and not skip_rd:
                     piece = board[y - z][x + z]
                     if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -435,11 +517,13 @@ class Queen(Piece):
                             x + z,
                             y - z,
                             cls,
+                            cls.points,
                             color,
-
                         ))
                     if not Blank.is_piece(piece):
                         skip_rd = True
+                        if Piece.is_opponent(piece, color):
+                            moves[-1].points += cls.get_piece(piece)[0].points
             if tcheck and not skip_t:
                 piece = board[y + z][x]
                 if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -449,11 +533,13 @@ class Queen(Piece):
                         x,
                         y + z,
                         cls,
+                        cls.points,
                         color,
-
                     ))
                 if not Blank.is_piece(piece):
                     skip_t = True
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
             if dcheck and not skip_d:
                 piece = board[y - z][x]
                 if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -463,11 +549,13 @@ class Queen(Piece):
                         x,
                         y - z,
                         cls,
+                        cls.points,
                         color,
-
                     ))
                 if not Blank.is_piece(piece):
                     skip_d = True
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
 
         return moves
 
@@ -492,8 +580,11 @@ class King(Piece):
                     x - 1,
                     y,
                     cls,
+                    cls.points,
                     color,
                 ))
+                if Piece.is_opponent(piece, color):
+                    moves[-1].points += cls.get_piece(piece)[0].points
             if tcheck:
                 piece = board[y + 1][x - 1]
                 if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -503,9 +594,11 @@ class King(Piece):
                         x - 1,
                         y + 1,
                         cls,
-                        color,
-
+                        cls.points,
+                        color
                     ))
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
             if dcheck:
                 piece = board[y - 1][x - 1]
                 if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -515,9 +608,11 @@ class King(Piece):
                         x - 1,
                         y - 1,
                         cls,
+                        cls.points,
                         color,
-
                     ))
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
         if rcheck:
             piece = board[y][x + 1]
             if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -527,8 +622,11 @@ class King(Piece):
                     x + 1,
                     y,
                     cls,
+                    cls.points,
                     color,
                 ))
+                if Piece.is_opponent(piece, color):
+                    moves[-1].points += cls.get_piece(piece)[0].points
             if tcheck:
                 piece = board[y + 1][x + 1]
                 if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -538,9 +636,11 @@ class King(Piece):
                         x + 1,
                         y + 1,
                         cls,
+                        cls.points,
                         color,
-
                     ))
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
             if dcheck:
                 piece = board[y - 1][x + 1]
                 if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -550,9 +650,11 @@ class King(Piece):
                         x + 1,
                         y - 1,
                         cls,
+                        cls.points,
                         color,
-
                     ))
+                    if Piece.is_opponent(piece, color):
+                        moves[-1].points += cls.get_piece(piece)[0].points
         if tcheck:
             piece = board[y + 1][x]
             if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -562,8 +664,11 @@ class King(Piece):
                     x,
                     y + 1,
                     cls,
+                    cls.points,
                     color,
                 ))
+                if Piece.is_opponent(piece, color):
+                    moves[-1].points += cls.get_piece(piece)[0].points
         if dcheck:
             piece = board[y - 1][x]
             if Blank.is_piece(piece) or Piece.is_opponent(piece, color):
@@ -573,8 +678,11 @@ class King(Piece):
                     x,
                     y - 1,
                     cls,
+                    cls.points,
                     color,
                 ))
+                if Piece.is_opponent(piece, color):
+                    moves[-1].points += cls.get_piece(piece)[0].points
 
         return moves
 
@@ -582,3 +690,14 @@ class King(Piece):
 class Blank(Piece):
     points = 0
     character = ' '
+
+
+piece_charmap: dict[str, type[Piece]] = {
+        'p': Pawn,
+        'r': Rook,
+        'h': Knight,
+        'b': Bishop,
+        'q': Queen,
+        'k': King,
+        ' ': Blank,
+}

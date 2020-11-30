@@ -4,6 +4,7 @@ class Move:
     to_x: int
     to_y: int
     piece: 'Piece'
+    points: int
     color: str
 
     def __init__(
@@ -13,6 +14,7 @@ class Move:
             to_x: int = 0,
             to_y: int = 0,
             piece: 'Piece' = None,
+            points: int = 0,
             color: str = '',
     ):
         self.from_x = from_x
@@ -20,16 +22,18 @@ class Move:
         self.to_x = to_x
         self.to_y = to_y
         self.piece = piece
+        self.points = points
         self.color = color
 
     def execute(self, board):
         board.move(self.from_x, self.from_y, self.to_x, self.to_y)
 
     def undo(self, board):
-        board.move(self.to_x, self.to_y, self.from_x, self.from_y)
+        is_pawn = self.piece.is_piece_str('p')
+        board.move(self.to_x, self.to_y, self.from_x, self.from_y, unpromote=is_pawn)
 
     def to_coords(self) -> tuple[int, int, int, int]:
         return self.from_x, self.from_y, self.to_x, self.to_y
 
     def is_valid(self) -> bool:
-        return (self.from_x, self.from_y) != (self.to_x, self.to_y)
+        return self.points > 0

@@ -75,11 +75,13 @@ class Board:
                 dest[0],
                 dest[1],
                 piece,
+                piece.points,
                 color,
             )
         else:
             return Move(
                 color=color,
+                points=-20
             )
 
     def get_moves(self, color: str) -> list[Move]:
