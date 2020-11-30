@@ -56,7 +56,12 @@ class GameInstance:
                 if self.save_history:
                     self.move_history.append(opponent_move)
 
+        # from datetime import datetime
+        # pre = datetime.now()
         move = self.strategy.play(self, self.board, color)
+        # post = datetime.now() - pre
+        # print(f'Time to play: {post.microseconds/1000} ms')
+
         move.execute(self.board)
         if self.save_history:
             self.move_history.append(move)
