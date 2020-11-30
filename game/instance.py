@@ -73,3 +73,9 @@ class GameInstance:
                 'to_col': x2,
             }
         )
+
+        if ConfigManager.get('print_match'):
+            print(f'{color} vs {self.opponent}:')
+            for row in self.board.current:
+                print(row)
+            print()
