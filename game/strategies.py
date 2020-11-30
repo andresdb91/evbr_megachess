@@ -7,17 +7,25 @@ from game.board import Board, WHITE_PROMOTE, BLACK_PROMOTE
 from game.move import Move
 
 PROMOTE_BONUS = 500
-CENTRAL_POSITION_BONUS = 50
+CENTRAL_POSITION_BONUS = 10
 DEFENSE_BONUS = 500
 CAPTURE_BONUS = {
-    'p': 80,
-    'r': 50,
-    'h': 30,
-    'b': 70,
-    'q': 100,
-    'k': 60,
+    'p': 0,
+    'r': 0,
+    'h': 0,
+    'b': 0,
+    'q': 0,
+    'k': 0,
 }
-MIN_MOVES_BEFORE_CUTLINE = 100
+MOVE_BONUS = {
+    'p': 10,
+    'r': 0,
+    'h': 0,
+    'b': 0,
+    'q': 0,
+    'k': -70,
+}
+MIN_MOVES_BEFORE_CUTLINE = 64
 
 
 class BaseStrategy:
@@ -87,13 +95,13 @@ class MaximumWeight(BaseStrategy):
         return best_move['move']
 
     def weight_move(self, board: Board, color: str, move: Move) -> int:
-        w = move.piece.points
+        w = move.piece.points + MOVE_BONUS[move.piece.character]
         square = board.get_piece(move.to_x, move.to_y)
         if move.piece == pieces.Pawn:
-            w += CENTRAL_POSITION_BONUS / (1 + abs(randint(6, 9) - move.from_x))
+            w += CENTRAL_POSITION_BONUS / (1 + abs(randint(2, 5) - move.from_x))
             if color == 'white' and board.current[WHITE_PROMOTE][move.to_x] == ' ':
                 w += PROMOTE_BONUS / (1 + abs(WHITE_PROMOTE - move.to_y))
-            elif board.current[BLACK_PROMOTE][move.to_x] == ' ':
+            elif color == 'black' and board.current[BLACK_PROMOTE][move.to_x] == ' ':
                 w += PROMOTE_BONUS / (1 + abs(BLACK_PROMOTE - move.to_y))
         if square != pieces.Blank:
             w += square.points * 10 + CAPTURE_BONUS[square.character]
@@ -105,7 +113,7 @@ class MaximumWeight(BaseStrategy):
 
 class OnlyPawnsAndQueensByWeight(MaximumWeight):
     def weight_move(self, board: Board, color: str, move: Move) -> int:
-        if type(move.piece) not in [pieces.Pawn, pieces.Queen]:
+        if move.piece not in [pieces.Pawn, pieces.Queen]:
             return -1
         else:
             return super(OnlyPawnsAndQueensByWeight, self).weight_move(board, color, move)
@@ -160,6 +168,7 @@ class TwoMoveWeighting(MaximumWeight):
                     }
 
             total_weight = weight - best_opponent_move['weight']
+            # total_weight = weight - best_opponent_move['move'].points
             if total_weight > best_move['weight']:
                 best_move = {
                     'move': move,
@@ -181,12 +190,12 @@ class MultiMoveWeight(MaximumWeight):
 
         # Setup initial board with no base weight
         # Move is set to [] to be populated on first iteration
-        board_list: list[tuple[Board, int, list[Move]]] = [(board, 0, [])]
+        board_list: list[tuple[int, list[Move]]] = [(0, [])]
 
         for it in range(0, max_iter):
             # Hold board list for next iteration (breadth first search)
             next_board_list = []
-            for _, board_weight, prev_moves in board_list:
+            for board_weight, prev_moves in board_list:
                 # Apply previous move chain
                 for pm in prev_moves:
                     pm.execute(temp_board)
@@ -194,7 +203,7 @@ class MultiMoveWeight(MaximumWeight):
                 ranked_moves = []
                 for m in moves:
                     # Weight move
-                    w = board_weight + self.weight_move(board, color, m)
+                    w = board_weight + self.weight_move(temp_board, color, m)
                     # Calculate movement influence area
                     move_influence = [(m.from_x, m.from_y), (m.to_x, m.to_y)]
                     ranked_moves.append((m, w, move_influence))
@@ -217,12 +226,12 @@ class MultiMoveWeight(MaximumWeight):
                     opponent_moves = temp_board.get_moves(opponent_color)
                     # Pick best weighted response
                     best_opponent_move = {
-                        'move': Move(),
+                        'move': None,
                         'weight': -1000,
                     }
                     for om in opponent_moves:
-                        if (om.to_x, om.to_y) not in influence:
-                            continue
+                        # if (om.to_x, om.to_y) not in influence:
+                        #     continue
                         ow = self.weight_move(temp_board, opponent_color, om)
                         if ow > best_opponent_move['weight']:
                             best_opponent_move = {
@@ -230,14 +239,13 @@ class MultiMoveWeight(MaximumWeight):
                                 'weight': ow,
                             }
                     # Calculate new board weight
-                    net_weight = weight - best_opponent_move['weight']
+                    net_weight = weight - best_opponent_move['move'].points
 
                     # Undo last move to restore temp board
                     move.undo(temp_board)
 
                     # Add move sequence to next iteration
                     next_board_list.append((
-                        _,
                         net_weight,
                         prev_moves + [move, best_opponent_move['move']]
                     ))
@@ -247,4 +255,4 @@ class MultiMoveWeight(MaximumWeight):
             board_list = next_board_list
 
         # Return first move from best chain
-        return sorted(board_list, key=lambda x: x[1], reverse=True)[0][2][0]
+        return sorted(board_list, key=lambda x: x[0], reverse=True)[0][1][0]
