@@ -26,6 +26,14 @@ if __name__ == '__main__':
     # Load and merge configuration files
     config.update(instance.config.config)
 
+    # Configure and start logging
+    logging.basicConfig(
+        filename=f'logs/{datetime.datetime.now().timestamp()}.log',
+        level=logging.INFO,
+        format='[%(asctime)s] %(levelname)s (%(name)s): %(message)s'
+    )
+    logger = logging.getLogger(__name__)
+
     # Override stored configuration with parameters
     if cmd_args.token:
         logger.info('Using token from command line')
@@ -37,13 +45,9 @@ if __name__ == '__main__':
     # Create configuration manager instance
     cfg_manager = ConfigManager(config)
 
-    # Configure and start logging
-    logging.basicConfig(
-        filename=f'logs/{datetime.date.today().isoformat()}',
-        level=ConfigManager.get('log_level') or logging.WARNING,
-        format='[%(asctime)s] %(levelname)s (%(name)): %(message)s'
-    )
-    logger = logging.getLogger(__name__)
+    # Override log level with config
+    if log_level := ConfigManager.get('log_level'):
+        logger.level = log_level
 
     # Create game instance
     game = GameClient()
