@@ -28,17 +28,26 @@ class Board:
             board.append(list(board_char[y*16:y*16+16]))
         return board
 
-    def move(self, from_x: int, from_y: int, x: int, y: int):
+    def move(self, from_x: int, from_y: int, x: int, y: int, *, unpromote=False):
         piece_char = self.current[from_y][from_x]
         piece = self.piece_charmap[piece_char.lower()]
         color = 'white' if piece_char.isupper() else 'black'
         self.current[from_y][from_x] = ' '
+
         # Promote pawns on 7(black)/8(white)
         if piece == Pawn:
             if y == WHITE_PROMOTE and color == 'white':
                 piece_char = 'Q'
             elif y == BLACK_PROMOTE and color == 'black':
                 piece_char = 'q'
+
+        # Unpromote when undoing pawn move
+        elif unpromote:
+            if from_y == WHITE_PROMOTE and color == 'white':
+                piece_char = 'P'
+            elif from_y == BLACK_PROMOTE and color == 'black':
+                piece_char = 'p'
+
         self.current[y][x] = piece_char
 
     def to_char_array(self) -> list[str]:
