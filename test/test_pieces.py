@@ -30,3 +30,25 @@ class TestPawn(unittest.TestCase):
         for move in moves:
             self.assertIn((move.to_x, move.to_y), valid)
             self.assertNotIn((move.to_x, move.to_y), invalid)
+
+    @parameterized.expand(
+        [
+            (
+                  'p',
+                  True,
+            ),
+            (
+                  'P',
+                  True,
+            ),
+        ] + [(p, False) for p in [
+            'r', 'h', 'b', 'q', 'k',
+            'R', 'H', 'B', 'Q', 'K',
+        ]],
+    )
+    def test_is_piece(self, piece, expected):
+        result = game.pieces.Pawn.is_piece(piece)
+        if expected:
+            self.assertTrue(result)
+        else:
+            self.assertFalse(result)
