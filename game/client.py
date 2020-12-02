@@ -136,8 +136,6 @@ class GameClient:
                                 print(f'Defeat as white: {white_score} to {black_score} points')
                         else:
                             print(f'Tie: {white_score} points')
-                            self.game_results['ties']['count'] += 1
-                            self.game_results['ties']['points'].append(white_score)
                 elif response['event'] == 'ask_challenge':
                     if selfchallenge := response['data']['username'] == ConfigManager.get('username'):
                         print('Self-challenge requested')
