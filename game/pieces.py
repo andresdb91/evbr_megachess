@@ -10,11 +10,11 @@ class Piece:
         return [Move()]
 
     @classmethod
-    def is_piece(cls, piece: str):
+    def is_piece(cls, piece: str) -> bool:
         return piece.lower() == cls.character
 
     @classmethod
-    def is_opponent(cls, piece: str, color: str):
+    def is_opponent(cls, piece: str, color: str) -> bool:
         return piece.isupper() if color == 'black' else piece.islower()
 
     @classmethod
