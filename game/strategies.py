@@ -7,7 +7,7 @@ from game.board import Board, WHITE_PROMOTE, BLACK_PROMOTE
 from game.move import Move
 
 PROMOTE_BONUS = 500
-CENTRAL_POSITION_BONUS = 10
+STARTING_POSITION_BONUS = 10
 DEFENSE_BONUS = 500
 CAPTURE_BONUS = {
     'p': 0,
@@ -61,16 +61,7 @@ class MaximumPointMove(BaseStrategy):
         return best_move[0]
 
     def weight_move(self, board: Board, color: str, move: Move) -> int:
-        w = move.piece.points
-        square = board.get_piece(move.to_x, move.to_y)
-        if move.piece == pieces.Pawn:
-            if color == 'white' and move.to_y == WHITE_PROMOTE:
-                w += PROMOTE_BONUS
-            elif color == 'black' and move.to_y == BLACK_PROMOTE:
-                w += PROMOTE_BONUS
-        if square != pieces.Blank:
-            w += square.points * 10
-        return w
+        return move.points
 
 
 class MaximumWeight(BaseStrategy):
@@ -95,17 +86,32 @@ class MaximumWeight(BaseStrategy):
         return best_move['move']
 
     def weight_move(self, board: Board, color: str, move: Move) -> int:
-        w = move.piece.points + MOVE_BONUS[move.piece.character]
+        w = move.piece.points
         square = board.get_piece(move.to_x, move.to_y)
         if move.piece == pieces.Pawn:
-            w += CENTRAL_POSITION_BONUS / (1 + abs(randint(2, 5) - move.from_x))
+            w += STARTING_POSITION_BONUS / (1 + abs(randint(2, 5) - move.from_x))
+            if color == 'white' and board.current[WHITE_PROMOTE][move.to_x] == ' ':
+                w += PROMOTE_BONUS / (1 + abs(WHITE_PROMOTE - move.to_y))
+            elif color == 'black' and board.current[BLACK_PROMOTE][move.to_x] == ' ':
+                w += PROMOTE_BONUS / (1 + abs(BLACK_PROMOTE - move.to_y))
+        if square != pieces.Blank:
+            w += square.points * 10
+        return w
+
+
+class ModifiedWeighting(MaximumWeight):
+    def weight_move(self, board: Board, color: str, move: Move) -> int:
+        w = move.piece.points / 2 + MOVE_BONUS[move.piece.character]
+        square = board.get_piece(move.to_x, move.to_y)
+        if move.piece == pieces.Pawn:
+            w += STARTING_POSITION_BONUS / (1 + abs(randint(2, 5) - move.from_x))
             if color == 'white' and board.current[WHITE_PROMOTE][move.to_x] == ' ':
                 w += PROMOTE_BONUS / (1 + abs(WHITE_PROMOTE - move.to_y))
             elif color == 'black' and board.current[BLACK_PROMOTE][move.to_x] == ' ':
                 w += PROMOTE_BONUS / (1 + abs(BLACK_PROMOTE - move.to_y))
         if square != pieces.Blank:
             w += square.points * 10 + CAPTURE_BONUS[square.character]
-            if (color == 'white' and move.to_y >= WHITE_PROMOTE)\
+            if (color == 'white' and move.to_y >= WHITE_PROMOTE) \
                     or (color == 'black' and move.to_y <= BLACK_PROMOTE):
                 w += DEFENSE_BONUS
         return w
@@ -168,7 +174,6 @@ class TwoMoveWeighting(MaximumWeight):
                     }
 
             total_weight = weight - best_opponent_move['weight']
-            # total_weight = weight - best_opponent_move['move'].points
             if total_weight > best_move['weight']:
                 best_move = {
                     'move': move,
