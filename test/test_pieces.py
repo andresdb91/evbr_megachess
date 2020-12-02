@@ -1,13 +1,14 @@
 import unittest
 from parameterized import parameterized
 
-import game.pieces
+from game.pieces import *
 
 
-class TestPawn(unittest.TestCase):
+class TestPieces(unittest.TestCase):
 
     @parameterized.expand([
         (
+            Pawn,
             7,
             3,
             [['p' if x == 7 else ' ' for x in range(16)] if y == 3 else [' ' for x in range(16)] for y in range(16)],
@@ -25,8 +26,8 @@ class TestPawn(unittest.TestCase):
             ],
         ),
     ])
-    def test_update_moves(self, x, y, board, color, valid, invalid):
-        moves = game.pieces.Pawn.update_moves(x, y, board, color)
+    def test_update_moves(self, piece, x, y, board, color, valid, invalid):
+        moves = piece.update_moves(x, y, board, color)
         for move in moves:
             self.assertIn((move.to_x, move.to_y), valid)
             self.assertNotIn((move.to_x, move.to_y), invalid)
@@ -34,42 +35,45 @@ class TestPawn(unittest.TestCase):
     @parameterized.expand(
         [
             (
-                  'p',
-                  True,
+                Pawn,
+                'p',
+                True,
             ),
             (
-                  'P',
-                  True,
+                Pawn,
+                'P',
+                True,
             ),
-        ] + [(p, False) for p in [
+        ] + [(Pawn, p, False) for p in [
             'r', 'h', 'b', 'q', 'k',
             'R', 'H', 'B', 'Q', 'K',
         ]],
     )
-    def test_is_piece(self, piece, expected):
-        result = game.pieces.Pawn.is_piece(piece)
+    def test_is_piece(self, piece, piece_char, expected):
+        result = piece.is_piece(piece_char)
         self.assertEqual(result, expected)
 
     @parameterized.expand([
         ('p', 'white', True),
-        ('p', 'black', False),
-        ('P', 'white', False),
-        ('P', 'black', True),
+        ('r', 'black', False),
+        ('Q', 'white', False),
+        ('B', 'black', True),
     ])
     def test_is_opponent(self, piece, color, expected):
-        result = game.pieces.Pawn.is_opponent(piece, color)
+        result = Piece.is_opponent(piece, color)
         self.assertEqual(result, expected)
 
     @parameterized.expand([
-        ('p', (game.pieces.Pawn, 'black')),
-        ('P', (game.pieces.Pawn, 'white')),
-        ('r', (game.pieces.Rook, 'black')),
-        ('R', (game.pieces.Rook, 'white')),
-        ('q', (game.pieces.Queen, 'black')),
-        ('Q', (game.pieces.Queen, 'white')),
-        ('k', (game.pieces.King, 'black')),
-        ('K', (game.pieces.King, 'white')),
+        ('p', (Pawn, 'black')),
+        ('P', (Pawn, 'white')),
+        ('r', (Rook, 'black')),
+        ('R', (Rook, 'white')),
+        ('q', (Queen, 'black')),
+        ('Q', (Queen, 'white')),
+        ('k', (King, 'black')),
+        ('K', (King, 'white')),
+        (' ', (Blank, '')),
     ])
     def test_get_piece(self, piece_char, expected):
-        result = game.pieces.Piece.get_piece(piece_char)
+        result = Piece.get_piece(piece_char)
         self.assertEqual(result, expected)
