@@ -9,7 +9,7 @@ class AIStrategyFactory:
         print(f'Using strategy: {name}')
         if name == 'random_legal':
             return game.strategies.RandomLegal()
-        elif name == 'maximum_points_move':
+        elif name == 'maximum_points':
             return game.strategies.MaximumPointMove()
         elif name == 'maximum_weight':
             return game.strategies.MaximumWeight()
