@@ -59,3 +59,17 @@ class TestPawn(unittest.TestCase):
     def test_is_opponent(self, piece, color, expected):
         result = game.pieces.Pawn.is_opponent(piece, color)
         self.assertEqual(result, expected)
+
+    @parameterized.expand([
+        ('p', (game.pieces.Pawn, 'black')),
+        ('P', (game.pieces.Pawn, 'white')),
+        ('r', (game.pieces.Rook, 'black')),
+        ('R', (game.pieces.Rook, 'white')),
+        ('q', (game.pieces.Queen, 'black')),
+        ('Q', (game.pieces.Queen, 'white')),
+        ('k', (game.pieces.King, 'black')),
+        ('K', (game.pieces.King, 'white')),
+    ])
+    def test_get_piece(self, piece_char, expected):
+        result = game.pieces.Piece.get_piece(piece_char)
+        self.assertEqual(result, expected)
