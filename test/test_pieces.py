@@ -48,7 +48,14 @@ class TestPawn(unittest.TestCase):
     )
     def test_is_piece(self, piece, expected):
         result = game.pieces.Pawn.is_piece(piece)
-        if expected:
-            self.assertTrue(result)
-        else:
-            self.assertFalse(result)
+        self.assertEquals(result, expected)
+
+    @parameterized.expand([
+        ('p', 'white', True),
+        ('p', 'black', False),
+        ('P', 'white', False),
+        ('P', 'black', True),
+    ])
+    def test_is_opponent(self, piece, color, expected):
+        result = game.pieces.Pawn.is_opponent(piece, color)
+        self.assertEquals(result, expected)
