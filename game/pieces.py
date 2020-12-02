@@ -14,10 +14,6 @@ class Piece:
         return piece.lower() == cls.character
 
     @classmethod
-    def is_piece_str(cls, piece_class: str):
-        return piece_charmap[piece_class].is_piece(cls.character)
-
-    @classmethod
     def is_opponent(cls, piece: str, color: str):
         return piece.isupper() if color == 'black' else piece.islower()
 

@@ -29,7 +29,7 @@ class Move:
         board.move(self.from_x, self.from_y, self.to_x, self.to_y)
 
     def undo(self, board):
-        is_pawn = self.piece.is_piece_str('p')
+        is_pawn = self.piece.is_piece('p')
         board.move(self.to_x, self.to_y, self.from_x, self.from_y, unpromote=is_pawn)
 
     def to_coords(self) -> tuple[int, int, int, int]:
