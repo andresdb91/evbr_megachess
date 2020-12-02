@@ -110,3 +110,6 @@ class Board:
 
     def get_piece(self, x: int, y: int):
         return self.piece_charmap[self.current[y][x].lower()]
+
+    def is_empty(self, x, y):
+        return self.current[y][x] == ' '
