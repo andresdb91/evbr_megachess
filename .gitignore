@@ -133,3 +133,6 @@ dmypy.json
 
 # SQLite3 DB files
 db/
+
+# Generated profiles
+profiles/
