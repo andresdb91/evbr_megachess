@@ -28,24 +28,62 @@ class TestPieces(unittest.TestCase):
         ]
 
     @parameterized.expand([
+        # Black pawn
         (
             Pawn,
-            7,
+            2,
             3,
             'black',
             [
+                (2, 4),
+                (2, 5),
+            ],
+        ),
+        (
+            Pawn,
+            2,
+            4,
+            'black',
+            [
+                (2, 5),
+            ],
+        ),
+        (
+            Pawn,
+            6,
+            3,
+            'black',
+            [
+                (6, 4),
+                (5, 4),
                 (7, 4),
-                (7, 5),
             ],
         ),
         (
             Pawn,
             7,
+            3,
+            'black',
+            [],
+        ),
+        (
+            Pawn,
+            8,
+            3,
+            'black',
+            [
+                (7, 4),
+            ],
+        ),
+        # White pawn
+        (
+            Pawn,
+            2,
             12,
             'white',
             [
-                (7, 11),
-                (7, 10),
+                (2, 11),
+                (2, 10),
             ],
         ),
     ])
