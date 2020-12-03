@@ -49,11 +49,10 @@ class TestPieces(unittest.TestCase):
             ],
         ),
     ])
-    def test_update_moves(self, piece, x, y, board, color, valid, invalid):
-        moves = piece.update_moves(x, y, board, color)
+    def test_update_moves(self, piece, x, y, color, valid):
+        moves = piece.update_moves(x, y, self.board, color)
         for move in moves:
             self.assertIn((move.to_x, move.to_y), valid)
-            self.assertNotIn((move.to_x, move.to_y), invalid)
 
     @parameterized.expand(
         [
