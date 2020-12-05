@@ -86,6 +86,64 @@ class TestPieces(unittest.TestCase):
                 (2, 10),
             ],
         ),
+        (
+            Pawn,
+            2,
+            11,
+            'white',
+            [
+                (2, 10),
+            ],
+        ),
+        (
+            Pawn,
+            6,
+            12,
+            'white',
+            [
+                (6, 11),
+                (5, 11),
+                (7, 11),
+            ],
+        ),
+        (
+            Pawn,
+            7,
+            12,
+            'white',
+            [],
+        ),
+        (
+            Pawn,
+            8,
+            12,
+            'white',
+            [
+                (7, 11),
+            ],
+        ),
+        # (White) Rook
+        (
+            Rook,
+            2,
+            4,
+            'white',
+            [
+                (2, 0),
+                (2, 1),
+                (2, 2),
+                (2, 3),
+                (2, 4),
+                (2, 5),
+                (2, 6),
+                (2, 7),
+                (0, 4),
+                (1, 4),
+                (2, 4),
+                (3, 4),
+                (4, 4),
+            ],
+        ),
     ])
     def test_update_moves(self, piece, x, y, color, valid):
         moves = piece.update_moves(x, y, self.board, color)
