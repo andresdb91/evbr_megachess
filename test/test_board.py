@@ -152,3 +152,52 @@ class TestBoard(unittest.TestCase):
             desynchronized_board,
             'white',
         )
+
+    @parameterized.expand([
+        (
+            'white',
+            [
+                (0, 13, 0, 12),
+                (1, 13, 1, 12),
+                (2, 13, 2, 12),
+                (3, 13, 3, 12),
+                (4, 13, 4, 12),
+                (5, 13, 5, 12),
+                (6, 13, 6, 12),
+                (7, 13, 7, 12),
+                (0, 13, 0, 11),
+                (1, 13, 1, 11),
+                (2, 13, 2, 11),
+                (3, 13, 3, 11),
+                (4, 13, 4, 11),
+                (5, 13, 5, 11),
+                (6, 13, 6, 11),
+                (7, 13, 7, 11),
+            ]
+        ),
+        (
+            'black',
+            [
+                (0, 2, 0, 3),
+                (1, 2, 1, 3),
+                (2, 2, 2, 3),
+                (3, 2, 3, 3),
+                (4, 2, 4, 3),
+                (5, 2, 5, 3),
+                (6, 2, 6, 3),
+                (7, 2, 7, 3),
+                (0, 2, 0, 4),
+                (1, 2, 1, 4),
+                (2, 2, 2, 4),
+                (3, 2, 3, 4),
+                (4, 2, 4, 4),
+                (5, 2, 5, 4),
+                (6, 2, 6, 4),
+                (7, 2, 7, 4),
+            ]
+        ),
+    ])
+    def test_get_moves(self, color, expected_moves):
+        moves = self.board.get_moves(color)
+        moves_as_coords = [m.to_coords() for m in moves]
+        self.assertCountEqual(moves_as_coords, expected_moves)
