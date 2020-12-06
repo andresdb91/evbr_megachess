@@ -3,6 +3,7 @@ from parameterized import parameterized
 
 from game.board import Board
 from game.board import BoardDesyncException
+from game import pieces
 
 
 class TestBoard(unittest.TestCase):
@@ -288,3 +289,11 @@ class TestBoard(unittest.TestCase):
         opponent_moves = [m.to_coords() for m in raw_opponent_moves]
         self.assertCountEqual(player_moves, expected_player_moves)
         self.assertCountEqual(opponent_moves, expected_opponent_moves)
+
+    @parameterized.expand([
+        (2, 2, pieces.Pawn),
+        (4, 4, pieces.Blank),
+    ])
+    def test_get_piece(self, x, y, expected_piece):
+        piece = self.board.get_piece(x, y)
+        self.assertEqual(piece, expected_piece)
