@@ -1,10 +1,10 @@
-from game.strategies import BaseStrategy
+from game.strategy import AIStrategy
 from game.move import Move
 from game import pieces
 
 
-class MockAIStrategy(BaseStrategy):
-    def play(self, instance, board, color):
+class MockAIStrategy(AIStrategy):
+    def play(self, board, color):
         if color == 'black':
             return Move(
                 2,

@@ -5,7 +5,6 @@ from game.instance import GameInstance
 from config_manager import ConfigManager
 from test.mock_server_adap import MockServerAdapter
 from test.mock_strategies import MockAIStrategy
-from game.strategies_fact import AIStrategyFactory
 
 
 class TestInstance(unittest.IsolatedAsyncioTestCase):
@@ -33,8 +32,7 @@ class TestInstance(unittest.IsolatedAsyncioTestCase):
         ConfigManager({})
         ConfigManager.set('username', 'test_player')
         cls.server = MockServerAdapter()
-        ConfigManager.set('ai_strategy', 'test_strategy')
-        AIStrategyFactory.strategies['test_strategy'] = MockAIStrategy
+        cls.strategy = MockAIStrategy()
 
     def setUp(self) -> None:
         self.instance = GameInstance(
@@ -42,6 +40,7 @@ class TestInstance(unittest.IsolatedAsyncioTestCase):
             self.opponent,
             self.color,
             self.input_board,
+            self.strategy,
         )
 
     @parameterized.expand([
