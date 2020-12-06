@@ -85,21 +85,8 @@ class GameClient:
             except queue.Empty:
                 await asyncio.sleep(0.5)
 
-    async def clean_game_list(self):
-        while True:
-            current = datetime.now()
-            old_games = []
-            for board_id, game in self.game_list.items():
-                if current - game.last_move > timedelta(seconds=GAME_TIMEOUT):
-                    old_games.append(board_id)
-            if len(old_games) > 0:
-                [self.game_list.pop(bid) for bid in old_games]
-                print(f'Game instances removed: {old_games}')
-            await asyncio.sleep(OLD_GAMES_CHECK_TIME)
-
     async def run(self):
         asyncio.create_task(self.cli_listener())
-        asyncio.create_task(self.clean_game_list())
         while True:
             try:
                 response = await self.server.recv()
