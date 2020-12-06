@@ -2,6 +2,7 @@ import unittest
 from parameterized import parameterized
 
 from game.board import Board
+from game.board import BoardDesyncException
 
 
 class TestBoard(unittest.TestCase):
@@ -100,3 +101,31 @@ class TestBoard(unittest.TestCase):
         move = self.board.update(modified_board, color)
         move_coords = move.to_coords()
         self.assertEqual(move_coords, expected_move)
+
+    @parameterized.expand([
+        (
+                'r h b q k       '
+                '                '
+                'ppp pppp        '
+                '   p            '
+                '                '
+                '                '
+                '                '
+                '                '
+                '                '
+                '                '
+                '                '
+                '                '
+                '   P            '
+                'PPP PPPP        '
+                '                '
+                'R H B Q K       ',
+        ),
+    ])
+    def test_update_board_exception(self, desynchronized_board):
+        self.assertRaises(
+            BoardDesyncException,
+            self.board.update,
+            desynchronized_board,
+            'white',
+        )
