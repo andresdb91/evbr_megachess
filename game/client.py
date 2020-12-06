@@ -2,12 +2,13 @@ import asyncio
 import queue
 from random import randint
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from config_manager import ConfigManager
 from game.instance import GameInstance
 from server.server_adap import BaseServerAdapter
 from server.server_fact import ServerAdapterFactory
+from game.strategy import AIStrategy
 from db_adap import SavedData
 
 OLD_GAMES_CHECK_TIME = 20
@@ -160,13 +161,13 @@ class GameClient:
                             board=response['data']['board'],
                             color=response['data']['actual_turn'],
                         ))
-                        game_instance.last_move = datetime.now()
                     else:
                         new_instance = GameInstance(
                             board_id=response['data']['board_id'],
                             opponent=response['data']['opponent_username'],
                             color=response['data']['actual_turn'],
                             board=response['data']['board'],
+                            strategy=AIStrategy(),
                         )
                         self.game_list[response['data']['board_id']] = new_instance
                         asyncio.create_task(new_instance.play(
@@ -177,7 +178,6 @@ class GameClient:
                         print(f'New game - id: {new_instance.board_id} '
                               f'- color: {new_instance.color} '
                               f'- opponent: {new_instance.opponent}')
-                        new_instance.last_move = datetime.now()
             except self.server.exception:
                 raise
             except Exception as e:
