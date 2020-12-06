@@ -66,3 +66,15 @@ class TestMove(unittest.TestCase):
 
         self.assertEqual(from_piece_pre_move, from_piece_post_move)
         self.assertEqual(to_piece_pre_move, to_piece_post_move)
+
+    @parameterized.expand([
+        ((2, 2, 2, 3, pieces.Pawn, 10, 'black'), True),
+        ((2, 13, 2, 12, pieces.Pawn, 10, 'white'), True),
+        ((7, 6, 7, 7, pieces.Pawn, 510, 'black'), True),
+        ((7, 9, 7, 8, pieces.Pawn, 510, 'white'), True),
+        ((0, 0, 0, 0, None, 0, 'white'), False),
+        ((0, 0, 0, 0, None, -20, 'black'), False),
+    ])
+    def test_is_valid(self, move_data, expected):
+        move = Move(*move_data)
+        self.assertEqual(move.is_valid(), expected)
