@@ -34,6 +34,8 @@ class TestMove(unittest.TestCase):
         ((2, 13, 2, 12, pieces.Pawn, 10, 'white'), False),
         ((7, 6, 7, 7, pieces.Pawn, 510, 'black'), True),
         ((7, 9, 7, 8, pieces.Pawn, 510, 'white'), True),
+        ((0, 0, 0, 0, None, 0, 'white'), False),
+        ((0, 0, 0, 0, None, -20, 'black'), False),
     ])
     def test_execute(self, move_data, should_promote):
         move = Move(*move_data)
