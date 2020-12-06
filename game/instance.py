@@ -20,8 +20,6 @@ class GameInstance:
     move_history: list[Move]
     save_history: bool
 
-    last_move: datetime
-
     def __init__(
             self,
             board_id: str,
