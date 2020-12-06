@@ -297,3 +297,11 @@ class TestBoard(unittest.TestCase):
     def test_get_piece(self, x, y, expected_piece):
         piece = self.board.get_piece(x, y)
         self.assertEqual(piece, expected_piece)
+
+    @parameterized.expand([
+        (2, 2, False),
+        (4, 4, True),
+    ])
+    def test_is_empty(self, x, y, expected):
+        result = self.board.is_empty(x, y)
+        self.assertEqual(result, expected)
