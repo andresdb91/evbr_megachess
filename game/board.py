@@ -5,6 +5,10 @@ BLACK_PROMOTE = 7
 PROMOTE_BONUS = 500
 
 
+class BoardDesyncException(Exception):
+    pass
+
+
 class Board:
     current: list[list[str]]
     piece_charmap: dict[str, type[Piece]] = {
@@ -73,7 +77,7 @@ class Board:
                 else:
                     print('Board desync, rebuilding')
                     self.current = Board.build_board(board)
-                    raise Exception('Board desync detected')
+                    raise BoardDesyncException('Board desync detected')
 
         if all([orig, dest]):
             piece = self.piece_charmap[self.current[orig[1]][orig[0]].lower()]

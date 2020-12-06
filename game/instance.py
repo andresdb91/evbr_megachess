@@ -1,6 +1,7 @@
 from game.strategies import BaseStrategy
 from game.strategies_fact import AIStrategyFactory
 from game.board import Board
+from game.board import BoardDesyncException
 from game.move import Move
 from config_manager import ConfigManager
 from datetime import datetime
@@ -46,9 +47,8 @@ class GameInstance:
                 opponent_move = self.board.update(board, opponent_color)
                 if opponent_move.is_valid():
                     opponent_move.execute(self.board)
-            except Exception as e:
+            except BoardDesyncException:
                 if self.save_history:
-                    print(e)
                     print('Disabling move history for this game')
                     self.save_history = False
                     self.move_history = []
