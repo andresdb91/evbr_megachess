@@ -29,6 +29,7 @@ class TestPieces(unittest.TestCase):
 
     @parameterized.expand([
         # Black pawn
+        # 00
         (
             Pawn,
             2,
@@ -39,6 +40,7 @@ class TestPieces(unittest.TestCase):
                 (2, 5),
             ],
         ),
+        # 01
         (
             Pawn,
             2,
@@ -48,6 +50,7 @@ class TestPieces(unittest.TestCase):
                 (2, 5),
             ],
         ),
+        # 02
         (
             Pawn,
             6,
@@ -59,6 +62,7 @@ class TestPieces(unittest.TestCase):
                 (7, 4),
             ],
         ),
+        # 03
         (
             Pawn,
             7,
@@ -66,6 +70,7 @@ class TestPieces(unittest.TestCase):
             'black',
             [],
         ),
+        # 04
         (
             Pawn,
             8,
@@ -76,6 +81,7 @@ class TestPieces(unittest.TestCase):
             ],
         ),
         # White pawn
+        # 05
         (
             Pawn,
             2,
@@ -86,6 +92,7 @@ class TestPieces(unittest.TestCase):
                 (2, 10),
             ],
         ),
+        # 06
         (
             Pawn,
             2,
@@ -95,6 +102,7 @@ class TestPieces(unittest.TestCase):
                 (2, 10),
             ],
         ),
+        # 07
         (
             Pawn,
             6,
@@ -106,6 +114,7 @@ class TestPieces(unittest.TestCase):
                 (7, 11),
             ],
         ),
+        # 08
         (
             Pawn,
             7,
@@ -113,6 +122,7 @@ class TestPieces(unittest.TestCase):
             'white',
             [],
         ),
+        # 09
         (
             Pawn,
             8,
@@ -123,6 +133,7 @@ class TestPieces(unittest.TestCase):
             ],
         ),
         # Rook
+        # 10
         (
             Rook,
             2,
@@ -133,17 +144,16 @@ class TestPieces(unittest.TestCase):
                 (2, 1),
                 (2, 2),
                 (2, 3),
-                (2, 4),
                 (2, 5),
                 (2, 6),
                 (2, 7),
                 (0, 4),
                 (1, 4),
-                (2, 4),
                 (3, 4),
                 (4, 4),
             ],
         ),
+        # 11
         (
             Rook,
             2,
@@ -154,18 +164,17 @@ class TestPieces(unittest.TestCase):
                 (2, 1),
                 (2, 2),
                 (2, 3),
-                (2, 4),
                 (2, 5),
                 (2, 6),
                 (0, 4),
                 (1, 4),
-                (2, 4),
                 (3, 4),
                 (4, 4),
                 (5, 4),
             ],
         ),
         # Knight
+        # 12
         (
             Knight,
             2,
@@ -182,6 +191,7 @@ class TestPieces(unittest.TestCase):
                 (3, 6),
             ],
         ),
+        # 13
         (
             Knight,
             14,
@@ -193,6 +203,7 @@ class TestPieces(unittest.TestCase):
                 (13, 3),
             ],
         ),
+        # 14
         (
             Knight,
             14,
@@ -204,9 +215,47 @@ class TestPieces(unittest.TestCase):
                 (12, 2),
             ],
         ),
+        # Bishop
+        # 15
+        (
+            Bishop,
+            2,
+            4,
+            'black',
+            [
+                (1, 3),
+                (0, 2),
+                (3, 5),
+                (4, 6),
+                (5, 7),
+                (3, 3),
+                (4, 2),
+                (1, 5),
+                (0, 6),
+            ],
+        ),
+        # 16
+        (
+            Bishop,
+            2,
+            4,
+            'white',
+            [
+                (1, 3),
+                (0, 2),
+                (3, 5),
+                (4, 6),
+                (3, 3),
+                (4, 2),
+                (5, 1),
+                (1, 5),
+                (0, 6),
+            ],
+        ),
     ])
     def test_update_moves(self, piece, x, y, color, valid):
         moves = piece.update_moves(x, y, self.board, color)
+        self.assertEqual(len(moves), len(valid))
         for move in moves:
             self.assertIn((move.to_x, move.to_y), valid)
 
