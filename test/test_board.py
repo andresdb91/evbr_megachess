@@ -318,3 +318,21 @@ class TestBoard(unittest.TestCase):
             self.assertEqual(to_piece_post_move, pieces.Queen)
         else:
             self.assertEqual(from_piece_pre_move, to_piece_post_move)
+
+    @parameterized.expand([
+        (2, 2, 2, 4, False),
+        (7, 6, 7, 7, True),
+        (7, 9, 7, 8, True),
+    ])
+    def test_undo_move(self, from_x, from_y, to_x, to_y, should_unpromote):
+        from_piece_pre_move = self.board.get_piece(from_x, from_y)
+        to_piece_pre_move = self.board.get_piece(to_x, to_y)
+
+        self.board.move(from_x, from_y, to_x, to_y)
+        self.board.move(to_x, to_y, from_x, from_y, unpromote=should_unpromote)
+
+        from_piece_post_move = self.board.get_piece(from_x, from_y)
+        to_piece_post_move = self.board.get_piece(to_x, to_y)
+
+        self.assertEqual(from_piece_pre_move, from_piece_post_move)
+        self.assertEqual(to_piece_pre_move, to_piece_post_move)
