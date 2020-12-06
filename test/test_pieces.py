@@ -361,6 +361,30 @@ class TestPieces(unittest.TestCase):
                 (14, 3),
             ]
         ),
+        # 22
+        (
+            Pawn,
+            4,
+            6,
+            'black',
+            [
+                (3, 7),
+                (4, 7),
+                (5, 7),
+            ],
+        ),
+        # 22
+        (
+            Pawn,
+            4,
+            9,
+            'white',
+            [
+                (3, 8),
+                (4, 8),
+                (5, 8),
+            ],
+        ),
     ])
     def test_update_moves(self, piece, x, y, color, valid):
         moves = piece.update_moves(x, y, self.board, color)
