@@ -8,7 +8,7 @@ from game.board import BoardDesyncException
 class TestBoard(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.input_board = 'r h b q k       ' \
+        cls.input_board = '                ' \
                           '                ' \
                           'pppppppp        ' \
                           '                ' \
@@ -23,14 +23,14 @@ class TestBoard(unittest.TestCase):
                           '                ' \
                           'PPPPPPPP        ' \
                           '                ' \
-                          'R H B Q K       '
+                          '                '
 
     def setUp(self) -> None:
         self.board = Board(self.input_board)
 
     def test_build_board(self):
         expected_board = [
-            ['r', ' ', 'h', ' ', 'b', ' ', 'q', ' ', 'k', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
             [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
             ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
             [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
@@ -45,7 +45,7 @@ class TestBoard(unittest.TestCase):
             [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
             ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
             [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            ['R', ' ', 'H', ' ', 'B', ' ', 'Q', ' ', 'K', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
         ]
 
         board = Board.build_board(self.input_board)
@@ -57,7 +57,7 @@ class TestBoard(unittest.TestCase):
 
     @parameterized.expand([
         (
-            'r h b q k       '
+            '                '
             '                '
             'ppp pppp        '
             '   p            '
@@ -72,13 +72,13 @@ class TestBoard(unittest.TestCase):
             '                '
             'PPPPPPPP        '
             '                '
-            'R H B Q K       ',
+            '                ',
             'black',
             (3, 2, 3, 3),
             10,
         ),
         (
-            'r h b q k       '
+            '                '
             '                '
             'pppppppp        '
             '                '
@@ -93,13 +93,13 @@ class TestBoard(unittest.TestCase):
             '   P            '
             'PPP PPPP        '
             '                '
-            'R H B Q K       ',
+            '                ',
             'white',
             (3, 13, 3, 12),
             10,
         ),
         (
-            'r h b q k       '
+            '                '
             '                '
             'pppppppp        '
             '                '
@@ -114,7 +114,7 @@ class TestBoard(unittest.TestCase):
             '                '
             'PPPPPPPP        '
             '                '
-            'R H B Q K       ',
+            '                ',
             'white',
             (0, 0, 0, 0),
             -20,
@@ -127,7 +127,7 @@ class TestBoard(unittest.TestCase):
 
     @parameterized.expand([
         (
-                'r h b q k       '
+                '                '
                 '                '
                 'ppp pppp        '
                 '   p            '
@@ -142,7 +142,7 @@ class TestBoard(unittest.TestCase):
                 '   P            '
                 'PPP PPPP        '
                 '                '
-                'R H B Q K       ',
+                '                ',
         ),
     ])
     def test_update_board_exception(self, desynchronized_board):
