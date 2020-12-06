@@ -25,7 +25,7 @@ class TestBoard(unittest.TestCase):
                           'R H B Q K       '
 
     def setUp(self) -> None:
-        self.board = Board(' '*256)
+        self.board = Board(self.input_board)
 
     def test_build_board(self):
         expected_board = [
@@ -49,3 +49,7 @@ class TestBoard(unittest.TestCase):
 
         board = Board.build_board(self.input_board)
         self.assertEqual(board, expected_board)
+
+    def test_to_char_array(self):
+        expected = list(self.input_board)
+        self.assertEqual(self.board.to_char_array(), expected)
