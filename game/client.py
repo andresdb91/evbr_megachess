@@ -86,7 +86,8 @@ class GameClient:
                 await asyncio.sleep(0.5)
 
     async def run(self):
-        asyncio.create_task(self.cli_listener())
+        if ConfigManager.get('interface'):
+            asyncio.create_task(self.cli_listener())
         while True:
             try:
                 response = await self.server.recv()
