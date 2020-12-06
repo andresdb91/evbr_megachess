@@ -1,5 +1,4 @@
-from game.strategies import BaseStrategy
-from game.strategies_fact import AIStrategyFactory
+from game.strategy import AIStrategy
 from game.board import Board
 from game.board import BoardDesyncException
 from game.move import Move
@@ -14,7 +13,7 @@ class GameInstance:
     player: str
     opponent: str
     color: str
-    strategy: BaseStrategy
+    strategy: AIStrategy
     board: Board
     start: datetime
     end: datetime
@@ -28,13 +27,14 @@ class GameInstance:
             board_id: str,
             opponent: str,
             color: str,
-            board: str
+            board: str,
+            strategy: AIStrategy,
     ):
         self.player = ConfigManager.get('username') or ''
         self.board_id = board_id
         self.opponent = opponent
         self.color = color
-        self.strategy = AIStrategyFactory.get_strategy(ConfigManager.get('ai_strategy'))
+        self.strategy = strategy
         self.board = Board(board)
         self.start = datetime.now()
         self.save_history = True
@@ -58,7 +58,7 @@ class GameInstance:
 
         # from datetime import datetime
         # pre = datetime.now()
-        move = self.strategy.play(self, self.board, color)
+        move = self.strategy.play(self.board, color)
         # post = datetime.now() - pre
         # print(f'Time to play: {post.microseconds/1000} ms')
 
