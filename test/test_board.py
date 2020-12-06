@@ -299,3 +299,22 @@ class TestBoard(unittest.TestCase):
     def test_is_empty(self, x, y, expected):
         result = self.board.is_empty(x, y)
         self.assertEqual(result, expected)
+
+    @parameterized.expand([
+        (2, 2, 2, 4, False),
+        (7, 6, 7, 7, True),
+        (7, 9, 7, 8, True),
+    ])
+    def test_move(self, from_x, from_y, to_x, to_y, should_promote):
+        from_piece_pre_move = self.board.get_piece(from_x, from_y)
+        self.board.move(from_x, from_y, to_x, to_y)
+
+        from_piece_post_move = self.board.get_piece(from_x, from_y)
+        to_piece_post_move = self.board.get_piece(to_x, to_y)
+
+        self.assertEqual(from_piece_post_move, pieces.Blank)
+        if should_promote:
+            self.assertEqual(from_piece_pre_move, pieces.Pawn)
+            self.assertEqual(to_piece_post_move, pieces.Queen)
+        else:
+            self.assertEqual(from_piece_pre_move, to_piece_post_move)
