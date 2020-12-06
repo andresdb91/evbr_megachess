@@ -75,6 +75,7 @@ class TestBoard(unittest.TestCase):
             'R H B Q K       ',
             'black',
             (3, 2, 3, 3),
+            10,
         ),
         (
             'r h b q k       '
@@ -95,12 +96,34 @@ class TestBoard(unittest.TestCase):
             'R H B Q K       ',
             'white',
             (3, 13, 3, 12),
+            10,
+        ),
+        (
+            'r h b q k       '
+            '                '
+            'pppppppp        '
+            '                '
+            '                '
+            '                '
+            '                '
+            '                '
+            '                '
+            '                '
+            '                '
+            '                '
+            '                '
+            'PPPPPPPP        '
+            '                '
+            'R H B Q K       ',
+            'white',
+            (0, 0, 0, 0),
+            -20,
         ),
     ])
-    def test_update_board(self, modified_board, color, expected_move):
+    def test_update_board(self, modified_board, color, expected_move, points):
         move = self.board.update(modified_board, color)
-        move_coords = move.to_coords()
-        self.assertEqual(move_coords, expected_move)
+        self.assertEqual(move.to_coords(), expected_move)
+        self.assertEqual(move.points, points)
 
     @parameterized.expand([
         (
