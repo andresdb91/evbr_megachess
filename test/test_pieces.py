@@ -329,9 +329,74 @@ class TestPieces(unittest.TestCase):
                 'P',
                 True,
             ),
-        ] + [(Pawn, p, False) for p in [
+            (
+                Rook,
+                'r',
+                True,
+            ),
+            (
+                Rook,
+                'R',
+                True,
+            ),
+            (
+                Knight,
+                'h',
+                True,
+            ),
+            (
+                Knight,
+                'H',
+                True,
+            ),
+            (
+                Bishop,
+                'b',
+                True,
+            ),
+            (
+                Bishop,
+                'B',
+                True,
+            ),
+            (
+                Queen,
+                'q',
+                True,
+            ),
+            (
+                Queen,
+                'Q',
+                True,
+            ),
+            (
+                King,
+                'k',
+                True,
+            ),
+            (
+                King,
+                'K',
+                True,
+            ),
+        ] + [(Pawn, x, False) for x in [
             'r', 'h', 'b', 'q', 'k',
             'R', 'H', 'B', 'Q', 'K',
+        ]] + [(Rook, x, False) for x in [
+            'p', 'h', 'b', 'q', 'k',
+            'P', 'H', 'B', 'Q', 'K',
+        ]] + [(Knight, x, False) for x in [
+            'r', 'p', 'b', 'q', 'k',
+            'R', 'P', 'B', 'Q', 'K',
+        ]] + [(Bishop, x, False) for x in [
+            'r', 'h', 'p', 'q', 'k',
+            'R', 'H', 'P', 'Q', 'K',
+        ]] + [(Queen, x, False) for x in [
+            'r', 'h', 'b', 'p', 'k',
+            'R', 'H', 'B', 'P', 'K',
+        ]] + [(King, x, False) for x in [
+            'r', 'h', 'b', 'q', 'p',
+            'R', 'H', 'B', 'Q', 'P',
         ]],
     )
     def test_is_piece(self, piece, piece_char, expected):
