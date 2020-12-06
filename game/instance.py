@@ -5,7 +5,7 @@ from game.board import BoardDesyncException
 from game.move import Move
 from config_manager import ConfigManager
 from datetime import datetime
-from server_websocket import ServerWebsocketAdap
+from server.server_adap import BaseServerAdapter
 
 
 class GameInstance:
@@ -40,7 +40,7 @@ class GameInstance:
         self.save_history = True
         self.move_history = []
 
-    async def play(self, turn_token: str, server: ServerWebsocketAdap, color: str, board: str = None):
+    async def play(self, turn_token: str, server: BaseServerAdapter, color: str, board: str = None):
         if board and self.player != self.opponent:
             opponent_color = 'white' if color != 'white' else 'black'
             try:

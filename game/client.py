@@ -6,7 +6,8 @@ from datetime import datetime, timedelta
 
 from config_manager import ConfigManager
 from game.instance import GameInstance
-from server_websocket import ServerWebsocketAdap
+from server.server_adap import BaseServerAdapter
+from server.server_fact import ServerAdapterFactory
 from db_adap import SavedData
 
 OLD_GAMES_CHECK_TIME = 20
@@ -18,7 +19,7 @@ class GameClient:
     game_list: dict[GameInstance]
     game_results: dict
     user_list: [str]
-    server: ServerWebsocketAdap
+    server: BaseServerAdapter
     saved_data: SavedData
     cli_commands: queue.Queue
 
@@ -30,7 +31,10 @@ class GameClient:
 
     async def main(self):
         print(f'Connecting to websocket server: {ConfigManager.get("websocket_uri").format("xxxxx")}')
-        self.server = ServerWebsocketAdap(ConfigManager.get('websocket_uri').format(ConfigManager.get('auth_token')))
+        self.server = ServerAdapterFactory.get_adapter(
+            ConfigManager.get('server_adapter'),
+            ConfigManager.get('websocket_uri').format(ConfigManager.get('auth_token'))
+        )
         await self.saved_data.init_db()
         await self.server.exec_with_context(self.run)
 
