@@ -1,7 +1,6 @@
 import unittest
 from parameterized import parameterized
 
-import asyncio
 from game.instance import GameInstance
 from config_manager import ConfigManager
 from test.mock_server_adap import MockServerAdapter
