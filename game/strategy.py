@@ -5,7 +5,7 @@ from random import randint
 
 
 class AIStrategy:
-    starting_depth: int = 3
+    starting_depth: int = 2
 
     slowest_move: float = 0
 
@@ -36,7 +36,7 @@ class AIStrategy:
         white_promote = 8
         black_promote = 7
         central_bonus = 1
-        queen_defense = 25
+        defense_bonus = 30
 
         score = move.points
         if move.piece.is_piece('p'):
@@ -64,6 +64,18 @@ class AIStrategy:
                         score += 160
                 elif move.to_y == black_promote - 3 and move.from_y == black_promote - 5:
                     score += 60
+            elif color == 'black':
+                crown_target_left, target_color_left = board.get_piece_color(move.to_x - 1, black_promote)
+                crown_target_right, target_color_right = board.get_piece_color(move.to_x + 1, black_promote)
+                if (crown_target_left and target_color_left == 'white') \
+                        or (crown_target_right and target_color_right == 'white'):
+                    score += 20
+            elif color == 'white':
+                crown_target_left, target_color_left = board.get_piece_color(move.to_x - 1, white_promote)
+                crown_target_right, target_color_right = board.get_piece_color(move.to_x + 1, white_promote)
+                if (crown_target_left and target_color_left == 'black') \
+                        or (crown_target_right and target_color_right == 'black'):
+                    score += 20
 
         target = board.get_piece(move.to_x, move.to_y)
         if not (move.piece.is_piece('p') or move.piece.is_piece('k')) and target.is_piece(' '):
@@ -74,11 +86,11 @@ class AIStrategy:
                 score += (5 - abs(black_promote - move.to_y)) * 122
             elif color == 'black':
                 score += (5 - abs(white_promote - move.to_y)) * 122
-        elif target.is_piece('q'):
-            if color == 'white':
-                score += queen_defense * move.to_y
-            elif color == 'black':
-                score += 15*queen_defense - queen_defense * move.to_y
+        else:
+            if color == 'white' and move.to_y >= black_promote:
+                score += defense_bonus * move.to_y
+            elif color == 'black' and move.to_y <= white_promote:
+                score += 15*defense_bonus - defense_bonus * move.to_y
 
         randomized_center = randint(6, 9)
         score += central_bonus * (randomized_center / (1 + abs(randomized_center - move.to_x)))
