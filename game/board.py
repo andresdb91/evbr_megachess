@@ -113,7 +113,23 @@ class Board:
             return self.get_moves('black'), self.get_moves('white')
 
     def get_piece(self, x: int, y: int):
-        return self.piece_charmap[self.current[y][x].lower()]
+        piece, _ = self.get_piece_color(x, y)
+        return piece
+
+    def get_piece_color(self, x: int, y: int):
+        if not (0, 0) <= (x, y) <= (15, 15):
+            return None, None
+
+        piece_char = self.current[y][x]
+        piece = self.piece_charmap[piece_char.lower()]
+        if piece_char.isupper():
+            color = 'white'
+        elif piece_char.islower():
+            color = 'black'
+        else:
+            color = ''
+
+        return piece, color
 
     def is_empty(self, x, y):
         return self.current[y][x] == ' '
