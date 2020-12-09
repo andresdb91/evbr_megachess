@@ -35,7 +35,7 @@ class AIStrategy:
         # 60
         white_promote = 8
         black_promote = 7
-        central_bonus = 10
+        central_bonus = 4
         queen_defense = 25
 
         score = move.points
@@ -76,9 +76,9 @@ class AIStrategy:
                 score += (5 - abs(white_promote - move.to_y)) * 122
         elif target.is_piece('q'):
             if color == 'white':
-                score += queen_defense/15 * move.to_y
+                score += queen_defense * move.to_y
             elif color == 'black':
-                score += 15*queen_defense - queen_defense/15 * move.to_y
+                score += 15*queen_defense - queen_defense * move.to_y
 
         randomized_center = randint(6, 9)
         score += central_bonus * (randomized_center / (1 + abs(randomized_center - move.to_x)))
