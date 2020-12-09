@@ -74,6 +74,8 @@ class GameClient:
                         ConfigManager.set('accept_challenges', False)
                 elif command[0] == 'quit':
                     asyncio.get_event_loop().stop()
+                elif command[0] == 'abort' and len(command) == 2:
+                    await self.server.send('abort', {'board_id': command[1]})
                 elif command[0] == 'config' and len(command) == 3:
                     value = command[2]
                     if value.isdigit():
@@ -95,7 +97,7 @@ class GameClient:
                 if response['event'] == 'update_user_list':
                     if self.user_list != response['data']['users_list']:
                         self.user_list = response['data']['users_list']
-                    print(self.user_list)
+                    print(f'Online users: {self.user_list}')
                 elif response['event'] == 'gameover':
                     game_instance = self.game_list.pop(response['data']['board_id'], None)
                     white_score = int(response['data']['white_score'])

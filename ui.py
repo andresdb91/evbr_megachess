@@ -12,6 +12,7 @@ class UI:
         'auto-accept',
         'config',
         'quit',
+        'abort',
     ]
 
     def __init__(self, game: GameClient):
@@ -21,9 +22,10 @@ class UI:
         while True:
             command = input('MegaChess CLI: ')
             if command == 'help':
-                print('users: updates and shows current online users')
-                print('challenge [<user>]: sends a challenge to a specific user')
-                print('randomchallenge: sends a challenge to a random online user')
+                print('users: Updates and shows current online users')
+                print('challenge [<user>]: Sends a challenge to a specific user')
+                print('randomchallenge: Sends a challenge to a random online user')
+                print('abort <board_id>: Aborts selected game')
                 print('auto-accept [on | off]: Enables or disables challenge autoaccept')
                 print('self <key> <value>: Changes a configuration value')
                 print('quit: Disconnects the websocket and exits the program')
