@@ -160,6 +160,7 @@ class GameClient:
                             server=self.server,
                             board=response['data']['board'],
                             color=response['data']['actual_turn'],
+                            moves_left=response['data']['move_left'],
                         ))
                     else:
                         new_instance = GameInstance(
@@ -174,6 +175,7 @@ class GameClient:
                             turn_token=response['data']['turn_token'],
                             server=self.server,
                             color=response['data']['actual_turn'],
+                            moves_left=response['data']['move_left'],
                         ))
                         print(f'New game - id: {new_instance.board_id} '
                               f'- color: {new_instance.color} '

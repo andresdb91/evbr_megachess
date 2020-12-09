@@ -30,9 +30,9 @@ class TestAIStrategy(unittest.IsolatedAsyncioTestCase):
         self.strategy = AIStrategy()
 
     @parameterized.expand([
-        ('white',),
-        ('black',),
+        ('white', 1),
+        ('black', 1),
     ])
-    def test_play(self, color):
-        move = self.strategy.play(self.test_board, color)
+    def test_play(self, color, moves_left):
+        move = self.strategy.play(self.test_board, color, moves_left)
         self.assertTrue(move.is_valid())

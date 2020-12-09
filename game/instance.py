@@ -38,7 +38,7 @@ class GameInstance:
         self.save_history = True
         self.move_history = []
 
-    async def play(self, turn_token: str, server: BaseServerAdapter, color: str, board: str = None):
+    async def play(self, turn_token: str, server: BaseServerAdapter, color: str, moves_left: int, board: str = None):
         if board and self.player != self.opponent:
             opponent_color = 'white' if color != 'white' else 'black'
             try:
@@ -54,11 +54,7 @@ class GameInstance:
                 if self.save_history:
                     self.move_history.append(opponent_move)
 
-        # from datetime import datetime
-        # pre = datetime.now()
-        move = self.strategy.play(self.board, color)
-        # post = datetime.now() - pre
-        # print(f'Time to play: {post.microseconds/1000} ms')
+        move = self.strategy.play(self.board, color, moves_left)
 
         move.execute(self.board)
         if self.save_history:

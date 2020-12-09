@@ -4,7 +4,7 @@ from game import pieces
 
 
 class MockAIStrategy(AIStrategy):
-    def play(self, board, color):
+    def play(self, board, color, moves_left):
         if color == 'black':
             return Move(
                 2,

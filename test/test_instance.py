@@ -151,5 +151,5 @@ class TestInstance(unittest.IsolatedAsyncioTestCase):
         ),
     ])
     async def test_play(self, board, color, expected_send):
-        await self.instance.play('12345', self.server, color, board)
+        await self.instance.play('12345', self.server, color, 1, board)
         self.assertEqual(self.server.test_send, expected_send)
