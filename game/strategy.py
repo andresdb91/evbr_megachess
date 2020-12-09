@@ -5,7 +5,7 @@ from random import randint
 
 
 class AIStrategy:
-    starting_depth: int = 2
+    starting_depth: int = 3
 
     slowest_move: float = 0
 
@@ -35,7 +35,7 @@ class AIStrategy:
         # 60
         white_promote = 8
         black_promote = 7
-        central_bonus = 4
+        central_bonus = 1
         queen_defense = 25
 
         score = move.points
