@@ -6,7 +6,7 @@ from random import randint
 
 class AIStrategy:
     starting_depth: int = 2
-
+    randomized_center: int = None
     slowest_move: float = 0
 
     def play(self, board: Board, color: str, moves_left: int) -> Move:
@@ -19,8 +19,8 @@ class AIStrategy:
             print(e)
             raise
         post = datetime.now() - pre
-        print(f'Time to play: {post.seconds*1000+post.microseconds/1000} ms - Moves left: {moves_left}')
-        print(move.to_coords(), score)
+        # print(f'Time to play: {post.seconds*1000+post.microseconds/1000} ms - Moves left: {moves_left}')
+        # print(move.to_coords(), score)
         if (ply_time := post.seconds*1000+post.microseconds/1000) > self.slowest_move:
             self.slowest_move = ply_time
         if moves_left <= 2:
@@ -28,18 +28,14 @@ class AIStrategy:
 
         return move
 
-    def heuristic(self, board: Board, move: Move, color: str) -> int:
-        # 170
-        # 165
-        # 95 | 160
-        # 60
+    def heuristic(self, board: Board, move: Move, color: str, left: int) -> int:
         white_promote = 8
         black_promote = 7
         central_bonus = 1
-        defense_bonus = 30
+        defense_bonus = 25
 
         score = move.points
-        if move.piece.is_piece('p'):
+        if move.piece.is_piece('p') and left >= 5:
             if color == 'white' and board.get_piece(move.to_x, white_promote).is_piece(' '):
                 if move.to_y == white_promote:
                     score -= 330
@@ -69,31 +65,34 @@ class AIStrategy:
                 crown_target_right, target_color_right = board.get_piece_color(move.to_x + 1, black_promote)
                 if (crown_target_left and target_color_left == 'white') \
                         or (crown_target_right and target_color_right == 'white'):
-                    score += 20
+                    score += 10
             elif color == 'white':
                 crown_target_left, target_color_left = board.get_piece_color(move.to_x - 1, white_promote)
                 crown_target_right, target_color_right = board.get_piece_color(move.to_x + 1, white_promote)
                 if (crown_target_left and target_color_left == 'black') \
                         or (crown_target_right and target_color_right == 'black'):
-                    score += 20
+                    score += 10
 
         target = board.get_piece(move.to_x, move.to_y)
-        if not (move.piece.is_piece('p') or move.piece.is_piece('k')) and target.is_piece(' '):
+        if target.is_piece(' ') and not move.piece.is_piece('p'):
             return -1
 
         if target.is_piece('p'):
             if color == 'white':
-                score += (5 - abs(black_promote - move.to_y)) * 122
+                if move.to_y > 5:
+                    score += (5 - abs(black_promote - move.to_y)) * 122
             elif color == 'black':
-                score += (5 - abs(white_promote - move.to_y)) * 122
-        else:
-            if color == 'white' and move.to_y >= black_promote:
+                if move.to_y < 10:
+                    score += (5 - abs(white_promote - move.to_y)) * 122
+        elif not target.is_piece(' '):
+            if color == 'white' and move.to_y >= black_promote - 1:
                 score += defense_bonus * move.to_y
-            elif color == 'black' and move.to_y <= white_promote:
+            elif color == 'black' and move.to_y <= white_promote + 1:
                 score += 15*defense_bonus - defense_bonus * move.to_y
 
-        randomized_center = randint(6, 9)
-        score += central_bonus * (randomized_center / (1 + abs(randomized_center - move.to_x)))
+        if self.randomized_center is None:
+            self.randomized_center = randint(5, 10)
+        score += central_bonus * (self.randomized_center / (1 + abs(self.randomized_center - move.to_x)))
 
         return score
 
@@ -101,74 +100,89 @@ class AIStrategy:
         return 'white' if color != 'white' else 'black'
 
     def pick(self, board: Board, color: str, maximize: bool, depth: int,
-             moves_left: int, acc: int, alfa: int = None, beta: int = None):
+             moves_left: int, alfa: int = None, beta: int = None):
         moves = board.get_moves(color)
-        sorted(moves, key=lambda x: x.points)
+
+        if len(moves) == 1:
+            return moves[0].points, moves[0]
+        elif len(moves) == 0:
+            return float('inf') if maximize else float('-inf'), Move()
+
+        moves.sort(key=lambda x: x.points, reverse=True)
         candidate = None
         max_score = float('-inf')
         min_score = float('+inf')
+        min_points = 0
+        max_points = 0
+
         if not alfa:
             alfa = float('-inf')
         if not beta:
             beta = float('+inf')
+
         for move in moves:
-            move_heuristic = self.heuristic(board, move, color)
+            move_heuristic = self.heuristic(board, move, color, moves_left)
             if move_heuristic < 0:
                 continue
             if depth == 0 or moves_left == 1:
                 if maximize:
-                    score = acc + move_heuristic
-                    if score > max_score:
-                        max_score = score
+                    if move_heuristic > max_score:
+                        max_score = move_heuristic
                         candidate = move
+                        max_points = move.points
                 else:
-                    score = acc - move_heuristic
-                    if score < min_score:
-                        min_score = score
+                    if move_heuristic < min_score:
+                        min_score = move_heuristic
                         candidate = move
+                        min_points = - move.points
             else:
                 move.execute(board)
                 if maximize:
-                    score, subcandidate = self.pick(
+                    score, _ = self.pick(
                         board,
                         self.invert_color(color),
                         False,
                         depth - 1,
                         moves_left - 1,
-                        acc + move_heuristic,
                         alfa,
                         beta,
                     )
                     move.undo(board)
+                    score += move_heuristic
                     if score > max_score:
                         max_score = score
                         candidate = move
+                        max_points = score - move_heuristic + move.points
                     alfa = max(alfa, score)
                     if alfa >= beta:
                         break
                 else:
-                    score, subcandidate = self.pick(
+                    score, _ = self.pick(
                         board,
                         self.invert_color(color),
                         True,
                         depth - 1,
                         moves_left - 1,
-                        acc - move_heuristic,
                         alfa,
                         beta,
                     )
                     move.undo(board)
+                    score -= move_heuristic
                     if score < min_score:
                         min_score = score
                         candidate = move
+                        min_points = score + move_heuristic - move.points
                     beta = min(beta, score)
                     if beta <= alfa:
                         break
 
-        if candidate is None and len(moves) > 0:
-            return -1, moves[randint(0, len(moves)-1)] if len(moves) > 1 else moves[0]
+        if candidate is None:
+            if maximize:
+                return moves[0].points, moves[0]
+            else:
+                return - moves[0].points, moves[0]
 
         if maximize:
-            return max_score, candidate
+            return max_points, candidate
         else:
-            return min_score, candidate
+            return min_points, candidate
