@@ -2,3 +2,5 @@ aiosqlite==0.16.0
 typing-extensions==3.7.4.3
 websockets==8.1
 parameterized==0.7.4
+coverage==5.3
+coveralls==2.2.0
