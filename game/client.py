@@ -182,6 +182,8 @@ class GameClient:
                         print(f'New game - id: {new_instance.board_id} '
                               f'- color: {new_instance.color} '
                               f'- opponent: {new_instance.opponent}')
+                else:
+                    print(response)
             except self.server.exception:
                 raise
             except Exception as e:
